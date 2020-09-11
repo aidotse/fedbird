@@ -1,0 +1,11 @@
+opencv-python
+opencv-contrib-python
+numba
+setuptools==41.0.0
+tensorflow
+numpy
+pandas
+scikit-learn
+scipy==1.4.1
+keras
+
