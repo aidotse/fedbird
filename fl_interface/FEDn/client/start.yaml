@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+
+  client:
+    environment:
+      - GET_HOSTS_FROM=${HOSTS_SOURCE}
+      - CLIENT_NAME=${CLIENT_NAME}
+    image: "scaleoutsystems/nvidia_client:exp"
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE}
+    working_dir: /app/client
+    command: /bin/bash -c "ldconfig && sleep 10 && fedn run client -d discovery -p 8080 -n ${CLIENT_NAME_BASE}1  -t e9a3cb4c5eaff546eec33ff68a7fbe232b68a192"
+    volumes:
+      - ./src/:/app/client
+      - ./data:/app/data
+    device_requests:
+      - capabilities:
+          - "gpu"
+
