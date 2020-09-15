@@ -15,5 +15,6 @@ RUN git clone https://github.com/scaleoutsystems/fedn.git && \
 
 FROM scaleout-fedn AS fed-bird-client
 
-COPY src /app/client
+COPY src /app/client/
+COPY project.yaml /app/client/
 COPY data /app/data

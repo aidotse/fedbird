@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  client:
+  fedbird:
     environment:
       - GET_HOSTS_FROM=${HOSTS_SOURCE}
       - CLIENT_NAME=${CLIENT_NAME}
@@ -11,11 +11,13 @@ services:
       context: .
       dockerfile: ${DOCKERFILE}
     working_dir: /app/client
-    command: /bin/bash -c "ldconfig && sleep 10 && fedn run client -d discovery -p 8080 -n ${CLIENT_NAME_BASE}1  -t e9a3cb4c5eaff546eec33ff68a7fbe232b68a192"
-    volumes:
-      - ./src/:/app/client
-      - ./data:/app/data
+    command: /bin/bash -c "ldconfig && sleep 10 && fedn run client -d discovery -p 8080 -n ${CLIENT_NAME}  -t e9a3cb4c5eaff546eec33ff68a7fbe232b68a192"
     device_requests:
       - capabilities:
           - "gpu"
-
+    shm_size: '1g'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    stdin_open: true
+    tty: true
