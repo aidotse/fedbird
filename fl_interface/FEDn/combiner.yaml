@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  
+  combiner:
+    env_file:
+      - ./project.env
+    image: "scaleoutsystems/combiner_nvidia:exp"
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: ${PLATFORM}_platform.dockerfile
+    working_dir: /app/combiner/src
+    command: bash ./run.sh
+    ports:
+        - 12080:12080
+    volumes:
+      - ./${COMPONENT_PATH}/src:/app/combiner/src
+      - ./${CONFIG}:/app/combiner/project.yaml
+    device_requests:
+      - capabilities:
+          - "gpu"
+    shm_size: '1g'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    stdin_open: true
+    tty: true
+
+#volumes:
+#  # CHANGE THIS IF YOU WANT TO PERSIST DATA ACROSS RUN's
+#  minio-data:

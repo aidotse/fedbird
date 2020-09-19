@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+
+  fedbird:
+    environment:
+      - CLIENT_NAME=${CLIENT_NAME}
+    image: "scaleoutsystems/fedbird_nvidia:exp"
+    env_file:
+      - ./project.env
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: ${PLATFORM}_platform.dockerfile
+    working_dir: /app/client
+    command: /bin/bash -c "ldconfig && sleep 10 && fedn run client -d discovery -p 8080 -n ${CLIENT_NAME}  -t e9a3cb4c5eaff546eec33ff68a7fbe232b68a192"
+    volumes:
+      - ./${COMPONENT_PATH}/src:/app/client/src
+      - ./${CONFIG}:/app/client/project.yaml
+    device_requests:
+      - capabilities:
+          - "gpu"
+    shm_size: '1g'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    stdin_open: true
+    tty: true

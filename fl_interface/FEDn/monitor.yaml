@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+
+  monitor:
+    image: "scaleoutsystems/monitor:latest"
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: monitor.dockerfile
+    environment:
+      - MONITOR_HOST=combiner
+      - MONITOR_PORT=12080
+      - USER=test
+      - PROJECT=project
+    working_dir: /app/monitor
+    volumes:
+      - ./${COMPONENT_PATH}/src:/app/monitor/src
+    command: /bin/bash -c "ldconfig && sleep 10 && python3 src/monitor.py"
+  
