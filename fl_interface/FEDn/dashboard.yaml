@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+
+  dashboard:
+    environment:
+      - GET_HOSTS_FROM=${GET_HOSTS_FROM}
+      - ALLIANCE_UID=${ALLIANCE_UID}
+      - MDBUSR=${MDBUSR}
+      - MDBPWD=${MDBPWD}
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: Dockerfile
+    working_dir: /app/dashboard
+    restart: always
+    ports:
+      - ${FEDN_DASHBOARD_PORT}:${FEDN_DASHBOARD_PORT}
+    volumes:
+      - ./components/dashboard:/app/dashboard
+    command: python3 app.py
