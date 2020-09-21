@@ -35,4 +35,4 @@ docker-compose --env-file project.env -f mongo_and_discovery.yaml build
 
 COMPOSE_API_VERSION=1.40 \
 COMPONENT_PATH=$argComponentPath \
-docker-compose --env-file project.env -f mongo_and_discovery.yaml up #--remove-orphans
+docker-compose --env-file project.env -f mongo_and_discovery.yaml up --remove-orphans
