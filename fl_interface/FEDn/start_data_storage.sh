@@ -30,9 +30,7 @@ echo "COMPONENT_PATH = $argComponentPath"
 echo "======================================="
 
 COMPOSE_API_VERSION=1.40 \
-COMPONENT_PATH=$argComponentPath \
-docker-compose --env-file project.env -f discovery.yaml build
+docker-compose --env-file project.env -f data-storage.yaml build
 
 COMPOSE_API_VERSION=1.40 \
-COMPONENT_PATH=$argComponentPath \
-docker-compose --env-file project.env -f discovery.yaml up #--remove-orphans
+docker-compose --env-file project.env -f data-storage.yaml up #--remove-orphans
