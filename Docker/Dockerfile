@@ -1,5 +1,5 @@
 #FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
-FROM nvcr.io/nvidia/tensorflow:20.08-tf1-py3
+FROM nvcr.io/nvidia/tensorflow:20.08-tf2-py3
 
 ENV TZ=Europe/Kiev
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
