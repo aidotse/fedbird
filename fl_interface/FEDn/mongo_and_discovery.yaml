@@ -8,7 +8,8 @@ services:
       - ALLIANCE_UID=${ALLIANCE_UID}
       - MDBUSR=${MDBUSR}
       - MDBPWD=${MDBPWD}
-    image: "scaleoutsystems/discovery:fed_bird"
+      - DISCOVERY_PORT=${FEDN_DISCOVERY_PORT}
+    image: "scaleoutsystems/discovery:latest"
     build:
       context: ${COMPONENT_PATH}
       dockerfile: Dockerfile
@@ -37,7 +38,7 @@ services:
       - minio-data:/data
     command: server /data
 
-  mongodb:
+  mongo:
     container_name: mongo-dev
     image: mongo:4.4.1
     restart: always
@@ -46,17 +47,17 @@ services:
       - MONGO_INITDB_DATABASE=auth
       - MONGO_INITDB_ROOT_PASSWORD=${MDBPWD}
     ports:
-      - '27017:27017'
+      - ${FEDN_MONGO_PORT}:{FEDN_MONGO_PORT}
 
 
   mongo-express:
     container_name: mongo-express
-    image: mongo-express:latest
+    image: mongo-express:0.49.0
     depends_on:
-      - mongodb
+      - mongo
     restart: always
     ports:
-      - '8081:8081'
+      - ${FEDN_MONGO_EXPRESS_PORT}:${FEDN_MONGO_EXPRESS_PORT}
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongo-dev
       - ME_CONFIG_MONGODB_ADMINUSERNAME=${MDBUSR}

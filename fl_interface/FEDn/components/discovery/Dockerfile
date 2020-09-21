@@ -1,4 +1,4 @@
-FROM python:3.6 as platform-discovery
+FROM python:3.8 as platform-discovery
 
 WORKDIR /app
 
