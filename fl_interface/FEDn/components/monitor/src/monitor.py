@@ -26,9 +26,18 @@ class Client:
         # Alliance admin enpoints
         self.api_url = None
         try:
+            print("##############################")
+            print("#  " + os.environ['USER'])
+            print("#  " + os.environ['PROJECT'])
+            print("#  " + os.environ['ALLIANCE_UID'])
+            print("#  " + os.environ['API_URL'])
+            print("##############################")
             self.api_url = str.format('{}/projects/{}/{}/alliance_admin/{}/log',
-                                      os.environ['API_URL'], os.environ['USER'], os.environ['PROJECT'],
+                                      os.environ['API_URL'],
+                                      os.environ['USER'], os.environ['PROJECT'],
                                       os.environ['ALLIANCE_UID'])
+            print(self.api_url)
+
         except Exception:
             pass
 

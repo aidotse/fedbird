@@ -8,12 +8,17 @@ services:
       context: ${COMPONENT_PATH}
       dockerfile: monitor.dockerfile
     environment:
+      - GET_HOSTS_FROM=dns
       - MONITOR_HOST=combiner
       - MONITOR_PORT=12080
       - USER=test
       - PROJECT=project
+      - ALLIANCE_UID=${ALLIANCE_UID}
+      - MDBUSR=${MDBUSR}
+      - MDBPWD=${MDBPWD} 
     working_dir: /app/monitor
     volumes:
       - ./${COMPONENT_PATH}/src:/app/monitor/src
     command: /bin/bash -c "ldconfig && sleep 10 && python3 src/monitor.py"
-  
+    stdin_open: true
+    tty: true

@@ -10,7 +10,7 @@ services:
       context: ${COMPONENT_PATH}
       dockerfile: ${PLATFORM}_platform.dockerfile
     working_dir: /app/combiner/src
-    command: bash ./run.sh
+    command: /bin/bash -c "/app/combiner/src/run.sh" # run.sh
     ports:
         - 12080:12080
     volumes:
