@@ -5,6 +5,7 @@ ARGUMENT_LIST=(
     "platform"
     "component-path"
     "config"
+    "certificate"
 )
 
 opts=$(getopt \
@@ -38,6 +39,10 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
 
+	--certificate)
+            argCertificate=$2
+            shift 2
+            ;;
         *)
             break
             ;;
@@ -56,11 +61,7 @@ CLIENT_NAME=$argClientName \
 PLATFORM=$argPlatform \
 COMPONENT_PATH=$argComponentPath \
 CONFIG=$argConfig \
-docker-compose --env-file project.env -f client.yaml build
-
-COMPOSE_API_VERSION=1.40 \
-CLIENT_NAME=$argClientName \
-PLATFORM=$argPlatform \
-COMPONENT_PATH=$argComponentPath \
-CONFIG=$argConfig \
-docker-compose --env-file project.env -f client.yaml up #--remove-orphans
+CERTIFICATE=${argCertificate} \
+bash -c \
+'docker-compose --env-file project.env -f client.yaml build && \
+docker-compose --env-file project.env -f client.yaml up'

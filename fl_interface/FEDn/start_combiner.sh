@@ -4,6 +4,8 @@ ARGUMENT_LIST=(
     "platform"
     "component-path"
     "config"
+    "port"
+    "certificate"
 )
 
 opts=$(getopt \
@@ -32,6 +34,15 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
 
+	--port)
+            argPort=$2
+            shift 2
+            ;;
+
+	--certificate)
+            argCertificate=$2
+            shift 2
+            ;;
         *)
             break
             ;;
@@ -42,16 +53,17 @@ echo "======================================="
 echo "PLATFORM = $argPlatform"
 echo "COMPONENT_PATH = $argComponentPath"
 echo "CONFIG = $argConfig"
+echo "PORT = $argPort"
+echo "CERTIFICATE = $argCertificate"
 echo "======================================="
 
 COMPOSE_API_VERSION=1.40 \
 PLATFORM=$argPlatform \
 COMPONENT_PATH=$argComponentPath \
 CONFIG=$argConfig \
-docker-compose --env-file project.env -f combiner.yaml build
-
-COMPOSE_API_VERSION=1.40 \
-PLATFORM=$argPlatform \
-COMPONENT_PATH=$argComponentPath \
-CONFIG=$argConfig \
-docker-compose --env-file project.env -f combiner.yaml up #--remove-orphans
+PORT=${argPort} \
+CERTIFICATE=${argCertificate} \
+bash -c \
+'docker-compose --env-file project.env -f combiner.yaml build && \
+docker-compose --env-file project.env -f combiner.yaml up'
+#--remove-orphans

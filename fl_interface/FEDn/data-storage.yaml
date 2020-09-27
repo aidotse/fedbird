@@ -3,10 +3,12 @@ version: '3.7'
 services:
 
   minio:
-    image: minio/minio:RELEASE.2020-09-17T04-49-20Z
+    image: minio/minio:latest
     hostname: minio
     environment:
       - GET_HOSTS_FROM=${GET_HOSTS_FROM}
+      - MINIO_HOST=${FEDN_MINIO_HOST}
+      - MINIO_PORT=${FEDN_MINIO_PORT}
       - MINIO_ACCESS_KEY=${FEDN_MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${FEDN_MINIO_SECRET_KEY}
     ports:
@@ -20,30 +22,37 @@ services:
       - minio-data:/data
     command: server /data
 
-  mongo:
-    container_name: mongodb
-    image: mongo:4.4.1
-    restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MDBUSR}
-      - MONGO_INITDB_DATABASE=auth
-      - MONGO_INITDB_ROOT_PASSWORD=${MDBPWD}
-    ports:
-      - ${FEDN_MONGO_PORT}:${FEDN_MONGO_PORT}
-    command: mongod --port ${FEDN_MONGO_PORT}
- 
   mongo-express:
     container_name: mongo-express
     image: mongo-express:0.49.0
     depends_on:
-      - mongo
+      - mongo-database
     restart: always
     ports:
       - ${FEDN_MONGO_EXPRESS_PORT}:${FEDN_MONGO_EXPRESS_PORT}
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MDBUSR}
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MDBPWD}
+      - ME_CONFIG_MONGODB_SERVER=${FEDN_MONGO_HOST}
+      - ME_CONFIG_MONGODB_PORT=${FEDN_MONGO_PORT}
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${FEDN_MONGO_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${FEDN_MONGO_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${FEDN_MONGO_USER}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${FEDN_MONGO_PASSWORD}
+    links:
+    - "mongo-database"
+    
+  mongo-database:
+    container_name: mongo
+    image: mongo:4.4.1
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${FEDN_MONGO_USER}
+      - MONGO_INITDB_DATABASE=${FEDN_PROJECT_NAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${FEDN_MONGO_PASSWORD}
+    ports:
+      - ${FEDN_MONGO_PORT}:${FEDN_MONGO_PORT}
+    command: /usr/bin/mongod --port ${FEDN_MONGO_PORT} --bind_ip 0.0.0.0
+    #stdin_open: true
+    #tty: true
 
 volumes:
   # CHANGE THIS IF YOU WANT TO PERSIST DATA ACROSS RUN's

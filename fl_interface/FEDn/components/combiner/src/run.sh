@@ -1,2 +1,2 @@
 #!/bin/bash
-fedn run fedavg -d discovery -p 8080 -t e9a3cb4c5eaff546eec33ff68a7fbe232b68a192 -h combiner -i 12080 -n combiner
+fedn run combiner -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN} -h combiner -i 12080 -n combiner

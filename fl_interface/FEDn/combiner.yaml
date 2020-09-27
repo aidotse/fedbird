@@ -3,19 +3,32 @@ version: '3.7'
 services:
   
   combiner:
+    environment:
+      - PYTHONUNBUFFERED=0
+      - GET_HOSTS_FROM=dns
+      - ALLIANCE_UID=${ALLIANCE_UID}
+      - FEDN_MINIO_HOST=${FEDN_MINIO_HOST}
+      - FEDN_MINIO_PORT=${FEDN_MINIO_PORT}
+      - FEDN_MINIO_ACCESS_KEY=${FEDN_MINIO_ACCESS_KEY}
+      - FEDN_MINIO_SECRET_KEY=${FEDN_MINIO_SECRET_KEY}
+      - FEDN_MONGO_USER=${FEDN_MONGO_USER}
+      - FEDN_MONGO_PASSWORD=${FEDN_MONGO_PASSWORD}
+      - FEDN_MONGO_HOST=${FEDN_MONGO_HOST}
+      - FEDN_MONGO_PORT=${FEDN_MONGO_PORT}
     env_file:
       - ./project.env
-    image: "scaleoutsystems/combiner_nvidia:exp"
+    image: "fedbird/combiner_nvidia:exp"
     build:
       context: ${COMPONENT_PATH}
       dockerfile: ${PLATFORM}_platform.dockerfile
     working_dir: /app/combiner/src
-    command: /bin/bash -c "/app/combiner/src/run.sh" # run.sh
+    command: /bin/bash -c "/app/combiner/src/run.sh" 
     ports:
-        - 12080:12080
+        - ${PORT}:${PORT}
     volumes:
       - ./${COMPONENT_PATH}/src:/app/combiner/src
       - ./${CONFIG}:/app/combiner/project.yaml
+      - ./${CERTIFICATE}:/app/combiner/src/certs/client-cert.pem
     device_requests:
       - capabilities:
           - "gpu"
