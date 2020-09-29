@@ -31,11 +31,11 @@ of federated learning: FEDn, HPe, PySyft.
 Each client will generate its own container. Scripting is on going.  A
 dockerfile is provided by platform e.g. nvidia_platform.dockerfile,
 and ensure that FEDn SDK and FedBird code are deployed in the container.
-The Docker compose will start the client.
 
-command line to run a client:
-1. cd fl_interface/FEDn
-2. bash start.sh dns test nvidia_platform.dockerfile
-
-Note: not clear year how to make deployement easy yet.... suggestion
-welcome.
+Script files allow to start the component on host.
+List of command:
+- bash start_data_storage.sh (launch minio, mongodb and mongo-express)
+- bash start_dashboard.sh --component-path components/dashboard/ (launch the FEDn dashboard)
+- bash start_reducer.sh --component-path components/reducer/ (launch the reducer)
+- bash start_combiner.sh --platform nvidia --component-path components/combiner/ --config config/combiner.yaml --port 12080 --certificate certificates/reducer-cert.pem (launch a combiner - need to implement the name of the combiner like it is done in client)
+- bash start_client.sh --platform nvidia --config config/client.yaml --component-path components/client --client-name bird_nest_1 --certificate certificates/reducer-cert.pem
