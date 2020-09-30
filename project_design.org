@@ -1,0 +1,24 @@
+Project design
+
+* FEDn interfaces
+
+** Description - please update is misconception  
+
+FEDn client is interface the client code via
+the project.yaml file with the following interface:
+Member
+  - name:
+  - entry_points:
+    - predict:
+        - command:
+    - train:
+        - command:
+    - validate:
+        - command
+
+For FEDn, is it enough entry points ? Would we need to introduce new
+ones ? Are this entry point mandatory or optional ?
+
+* PySyft interface
+
+* HPE interface

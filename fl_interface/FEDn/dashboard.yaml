@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+
+  dashboard:
+    environment:
+      - ALLIANCE_UID=${ALLIANCE_UID}
+      - GET_HOSTS_FROM=${GET_HOSTS_FROM}
+      - HOST=${FEDN_DASHBOARD_HOST}
+      - PORT=${FEDN_DASHBOARD_PORT}
+      - MDBUSR=${FEDN_MONGO_USER}
+      - MDBPWD=${FEDN_MONGO_PASSWORD}
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: Dockerfile
+    working_dir: /app/dashboard
+    restart: always
+    ports:
+      - ${FEDN_DASHBOARD_PORT}:${FEDN_DASHBOARD_PORT}
+    volumes:
+      - ./components/dashboard:/app/dashboard
+    command: python3 app.py
