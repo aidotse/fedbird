@@ -19,18 +19,18 @@ from sklearn.utils import shuffle
 from sklearn.metrics import accuracy_score
 
 import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from keras.models import Model
+from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 
-from tensorflow.keras.layers import Input, Lambda
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import backend as K
+from keras.layers import Input, Lambda
+from keras.optimizers import Adam
+from keras import backend as K
 from misc import get_classes, get_anchors
 from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
 from yolo3.utils import get_random_data
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 class YOLOV3:
    @staticmethod
    def build(input_shape, anchors, classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
@@ -157,7 +157,7 @@ def main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, 
                                         'yolo_loss': lambda y_true, y_pred: y_pred})
 
                     
-                    local_model.fit(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+                    local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
                     steps_per_epoch=max(1, num_train//batch_size),
                     validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
                     validation_steps=max(1, num_val//batch_size),
@@ -173,7 +173,7 @@ def main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, 
 
                     #batch_size = 32 # note that more GPU memory is required after unfreezing the body
                     print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-                    local_model.fit(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+                    local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
                         steps_per_epoch=max(1, num_train//batch_size),
                         validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
                         validation_steps=max(1, num_val//batch_size),

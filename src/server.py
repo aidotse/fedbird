@@ -10,16 +10,16 @@ import os.path
 import time
 import pandas as pd
 import shutil
-
+import copy
 import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Lambda
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import backend as K
+from keras.models import Model
+from keras.layers import Input, Lambda
+from keras.optimizers import Adam
+from keras import backend as K
 from misc import get_classes, get_anchors
 from yolo3.model import tiny_yolo_body, yolo_loss
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 # A Simple multilayer perceptron neural network model (MLP)
 class YOLOV3:
    @staticmethod
@@ -64,10 +64,17 @@ def avr_weights(weight_list):
     
     """
     avg_grad = list()
-    for grad_list_tuple in zip(*weight_list):
-        layer_mean = tf.math.reduce_mean(grad_list_tuple, axis=0)
-        avg_grad.append(layer_mean)    
-    return avg_grad
+    w_avg = copy.deepcopy(weight_list[0])
+    print(np.array(weight_list[0][1]).shape)
+    #for grad_list_tuple in zip(*weight_list):
+    #    layer_mean = tf.math.reduce_mean(grad_list_tuple, axis=0)
+    #    avg_grad.append(layer_mean)
+    for j in range(len(weight_list[0])): 
+        for i in range(len(weight_list)):
+            w_avg[j] +=weight_list[i][j]
+        w_avg[j] = w_avg[j] / len(weight_list)    
+    avg_grad.append(w_avg)
+    return np.array(w_avg)
 
 def clear_dir(List_dir):
     """Clear folders of server and clients models
@@ -122,7 +129,6 @@ def main(global_model, iteration_num, Server_dir, Clients_dir, epoch):
             #global_model = keras.models.load_model(model_file)
             global_model.load_weights(weights_file)
             local_weight_list.append(global_model.get_weights())
-
         #to get the average over all the local model, we simply take the sum of the scaled weights
         average_weights = avr_weights(local_weight_list)
 
@@ -152,7 +158,14 @@ if __name__ == "__main__":
             clear_dir(Server_dir)
         else:
             os.mkdir(folder)
-    
+     
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+           for gpu in gpus:
+               tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
     print('Server and Client folders are clered ......')
     
     annotation_path = 'train.txt'
