@@ -63,18 +63,16 @@ def avr_weights(weight_list):
     avg_grad : average weight accross all client
     
     """
-    avg_grad = list()
-    w_avg = copy.deepcopy(weight_list[0])
+    w_avg = np.array(copy.deepcopy(weight_list[0]))
     print(np.array(weight_list[0][1]).shape)
     #for grad_list_tuple in zip(*weight_list):
     #    layer_mean = tf.math.reduce_mean(grad_list_tuple, axis=0)
     #    avg_grad.append(layer_mean)
-    for j in range(len(weight_list[0])): 
-        for i in range(len(weight_list)):
-            w_avg[j] +=weight_list[i][j]
+    for j in range(len(weight_list[0])): # no of layers
+        for i in range(1, len(weight_list)): # no of clients
+            w_avg[j] +=np.array(weight_list[i][j])
         w_avg[j] = w_avg[j] / len(weight_list)    
-    avg_grad.append(w_avg)
-    return np.array(w_avg)
+    return w_avg
 
 def clear_dir(List_dir):
     """Clear folders of server and clients models
@@ -145,7 +143,7 @@ def main(global_model, iteration_num, Server_dir, Clients_dir, epoch):
 
 if __name__ == "__main__":
     # clear folders of server and clients models    
-    Clients_dir = ['/data/CL1/', '/data/CL2/']
+    Clients_dir = ['/data/CL1/','/data/CL2']
     for folder in Clients_dir:
         if os.path.isdir(folder):
             clear_dir(Clients_dir)
