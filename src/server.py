@@ -143,7 +143,7 @@ def main(global_model, iteration_num, Server_dir, Clients_dir, epoch):
 
 if __name__ == "__main__":
     # clear folders of server and clients models    
-    Clients_dir = ['/data/CL1/','/data/CL2']
+    Clients_dir = ['/data/CL1/','/data/CL2/']
     for folder in Clients_dir:
         if os.path.isdir(folder):
             clear_dir(Clients_dir)
