@@ -11,7 +11,7 @@ import cv2
 import os
 import pandas as pd
 import time
-
+import logging
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
@@ -116,9 +116,8 @@ class TrainDataReader:
 
 class TrainingProcess:
 
-    def __init__(data, model, input_shape = (416,416)):
+    def __init__(data, model, input_shape = (416,416), learningrate=1e-3):
         self.init_epoch = 0
-        self.end_epoch = 1 
         self._data = data
         self._model = model
         self.anchors_path = 'model_data/tiny_yolo_anchors.txt'
@@ -127,8 +126,10 @@ class TrainingProcess:
         self.num_classes = len(class_names)
         self.anchors = get_anchors(anchors_path)
         self.input_shape = input_shape
+        self.lr = learningrate
+        self.logger = logging.getLogger('FedBird')    
       
-    def train(init_epoch, num_classes, batch_size, epoch, lr):
+    def train():
         """Client main function to read the global model files, update the weights, and save the local model
 
         Parameters
@@ -144,9 +145,6 @@ class TrainingProcess:
         epoch : number of local iteration before sending model to server
 
         """
-        '''num_train = clients_batched[0]
-        num_val = clients_batched[1]'''
-        
         lines_train, lines_val = self._data.read_training_data()
         log_dir = 'logs/000/'
         logging = TensorBoard(log_dir=log_dir)
@@ -156,47 +154,26 @@ class TrainingProcess:
         early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
         self._model.build_model() # model created, self._model.current_model
         local_model = self._model.current_model  #check it once again, shallow copy? what datatype is local_model
-        end_epoch = self.init_epoch + self.epoch 
+        end_epoch = self.init_epoch + self.epoch
+
         while True:
-        '''if os.path.isfile("".join([Client_dir,'client_data.csv'])):
-         os.remove("".join([Client_dir,'client_data.csv']))
-        # get server data name and epoch
-
-        if (os.path.isfile("".join([Server_dir,'server_data.csv']))):
-         server_data = pd.read_csv("".join([Server_dir,'server_data.csv']))
-
-         if (int(server_data['epoch'])) == iteration_num + epoch:
-             break;
-         if (int(server_data['epoch'])) == init_epoch:
-             iteration_num = int(server_data['iteration_num'])
-             
-             #K.clear_session()
-             local_model.load_weights("".join([Server_dir,'global_model.h5']))
-             end_epoch = init_epoch + epoch'''
-
-             # fit local model with client's data
+            # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
              if (init_epoch<50):
-                 local_model.compile(optimizer=Adam(lr=1e-3), loss={ # use custom yolo_loss Lambda layer.
+                 self.logger.info('Freezing the initial layers')
+                 local_model.compile(optimizer=Adam(lr=self.lr), loss={ # use custom yolo_loss Lambda layer.
                                      'yolo_loss': lambda y_true, y_pred: y_pred})
 
                  
-                 local_model.fit_generator(self._data.data_generator_wrapper(lines_train ,self.input_shape, self.anchors, self.num_classes),
-                 steps_per_epoch=max(1, len(lines_train)//self._data.batch_size),
-                 validation_data=data_generator_wrapper(lines[num_train:], self.input_shape, self.anchors, self.num_classes),
-                 validation_steps=max(1, len(lines_val)//self._data.batch_size),
-                 epochs=end_epoch,
-                 initial_epoch=self.init_epoch,
-                 callbacks=[logging, checkpoint])
-             else:
+            else:
+                 self.logger.info('Unfreezing all the layers')
                  for i in range(len(local_model.layers)):
                      local_model.layers[i].trainable = True
-                 local_model.compile(optimizer=Adam(lr=1e-4), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
-                 print('Unfreeze all of the layers.')
+                 local_model.compile(optimizer=Adam(lr=self.lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
 
-                 #batch_size = 32 # note that more GPU memory is required after unfreezing the body
-                 print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-                 local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+            #batch_size = 32 # note that more GPU memory is required after unfreezing the body
+            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+            local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
                      steps_per_epoch=max(1, len(lines_train)//batch_size),
                      validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
                      validation_steps=max(1, len(lines_val)//batch_size),
@@ -208,20 +185,15 @@ class TrainingProcess:
                   
              self.init_epoch += self.epoch
              local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
-             '''client_data = pd.DataFrame({'name': [client_name], 'epoch': [int(server_data['epoch'])+epoch]})
-             client_data.to_csv("".join([Client_dir,'client_data.csv']), index=False)
-             #tf.saved_model.save(local_model, "".join([Client_dir,'local_model/']))
-             print('Client name: %s sent data for iteration %d to server......' %(client_name, init_epoch))'''
-             
+           
        
 
 
 
 if __name__ == "__main__":
    
-    
-    #smlp_local = YOLOV3()
-    train = TrainingProcess(TrainDataReader(),Model())
+    start_process = TrainingProcess(TrainDataReader(),Model())
+    start_process.train()
     # number of local iteration before sending model to server
     '''    
     x_client, y_client = read_files('/data/client_1X.pkl', '/data/client_1Y.pkl')
