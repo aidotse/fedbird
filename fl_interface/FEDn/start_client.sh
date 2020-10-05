@@ -6,6 +6,7 @@ ARGUMENT_LIST=(
     "component-path"
     "config"
     "certificate"
+    "data-path"
 )
 
 opts=$(getopt \
@@ -43,6 +44,11 @@ while [[ $# -gt 0 ]]; do
             argCertificate=$2
             shift 2
             ;;
+
+	 --data-path)
+            argDataPath=$2
+	    shift 2
+	    ;;
         *)
             break
             ;;
@@ -54,9 +60,11 @@ echo "CLIENT_NAME = $argClientName"
 echo "PLATFORM = $argPlatform"
 echo "COMPONENT_PATH = $argComponentPath"
 echo "CONFIG = $argConfig"
+echo "DATA_PATH = $argDataPath"
 echo "======================================="
 
 COMPOSE_API_VERSION=1.40 \
+DATA_PATH=$argDataPath \
 CLIENT_NAME=$argClientName \
 PLATFORM=$argPlatform \
 COMPONENT_PATH=$argComponentPath \

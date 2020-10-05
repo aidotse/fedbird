@@ -15,6 +15,7 @@ services:
     command: /bin/bash -c "fedn run client -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -n ${CLIENT_NAME}  -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}" 
     volumes:
       - ./${COMPONENT_PATH}/src:/app/client/src
+      - ./${DATA_PATH}:/app/data
       - ./${CONFIG}:/app/client/project.yaml
       - ./${CERTIFICATE}:/app/client/certs/client-cert.pem
     device_requests:
