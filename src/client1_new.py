@@ -131,12 +131,22 @@ class TrainingProcess:
         self.anchors = get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
+        self.lines_train, self.lines_val = self._data.read_training_data()
+        self.log_dir = 'logs/000/'
+        self.logging = TensorBoard(log_dir=log_dir)
+        self.checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
+                                    monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
+        self.reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
+        self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
+        self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
         self.logger = logging.getLogger('FedBird')    
+        self.end_epoch = self.init_epoch + self.epoch
+        #self.local_model = self._model.current_model#check it once again, shallow copy? what datatype is local_model
       
-    def train(self):
+    def train(self, global_model):
         """Client main function to read the global model files, update the weights, and save the local model
 
-        Parameters
+        Parameters§
         ----------
         init_epoch : 0
         client_name : name of the client, e.g., client_1
@@ -149,17 +159,8 @@ class TrainingProcess:
         epoch : number of local iteration before sending model to server
 
         """
-        lines_train, lines_val = self._data.read_training_data()
-        log_dir = 'logs/000/'
-        logging = TensorBoard(log_dir=log_dir)
-        checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
-        monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
-        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
-        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-        self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
-        local_model = self._model.current_model  #check it once again, shallow copy? what datatype is local_model
-        end_epoch = self.init_epoch + self.epoch
-
+        #update it with the global model?
+        local_model = global_model.clone_model()
         while True:
             # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
@@ -183,23 +184,23 @@ class TrainingProcess:
                      validation_steps=max(1, len(lines_val)//self._data.batch_size),
                      epochs= end_epoch,
                      initial_epoch= self.init_epoch,
-                     callbacks=[logging,checkpoint])
+                     callbacks=[self.logging,self.checkpoint])
 
                  # clear session to free memory after each communication round
                   
             self.init_epoch += self.epoch
             local_model.save_weights('local_model.h5', overwrite=True)
             if self.init_epoch == end_epoch:
-                break
-           
-       
+                self.logger.info('Local Training Completed')
+                return local_model
 
+    
 
 
 if __name__ == "__main__":
    
     start_process = TrainingProcess(TrainDataReader(),Model())
-    start_process.train()
+    model = start_process.train()
     # number of local iteration before sending model to server
     '''    
     x_client, y_client = read_files('/data/client_1X.pkl', '/data/client_1Y.pkl')
