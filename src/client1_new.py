@@ -31,9 +31,23 @@ from yolo3.utils import get_random_data
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
-class YOLOV3:
+
+class Model:
+
+   def __init__(self,input_shape=(416,416 )):
+
+      self.anchors_path = 'model_data/tiny_yolo_anchors.txt'
+      self.classes_path = 'model_data/seabird_classes.txt'
+      self.class_names = get_classes(classes_path)
+      num_classes = len(class_names)
+      anchors = get_anchors(anchors_path)
+      self.lr = 0.001 
+      self.iteration_num = 100
+      self.input_shape = input_shape
+
+
    @staticmethod
-   def build(input_shape, anchors, classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
+   def build_model(input_shape, anchors, classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
         '''create the training model, for Tiny YOLOv3'''
         K.clear_session() # get a new session
         image_input = Input(shape=(None, None, 3))
@@ -62,6 +76,93 @@ class YOLOV3:
 
         return model
 
+   def train(init_epoch, client_name,iteration_num, clients_batched, epoch, anchors, num_classes, smlp_global):
+        """Client main function to read the global model files, update the weights, and save the local model
+
+        Parameters
+        ----------
+        init_epoch : 0
+        client_name : name of the client, e.g., client_1
+        Server_dir : specific directory that is defined to only save global model
+        Clients_dir : specific directory that is defined to only save local models for each client
+        optimizer : SGD optimizer from keras including learning rate, decay, and momentum
+        loss : loss metric
+        iteration_num : number of iteration
+        clients_batched : training data baches
+        epoch : number of local iteration before sending model to server
+
+        """
+        num_train = clients_batched[0]
+        num_val = clients_batched[1]
+        batch_size = clients_batched[2]
+        log_dir = 'logs/000/'
+        logging = TensorBoard(log_dir=log_dir)
+        checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
+            monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
+        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
+        print('Client name: %s connecting to server......' % (client_name))
+
+        local_model = smlp_global.build(input_shape,anchors,num_classes)
+        while True:
+
+            '''if os.path.isfile("".join([Client_dir,'client_data.csv'])):
+                os.remove("".join([Client_dir,'client_data.csv']))
+            # get server data name and epoch
+
+            if (os.path.isfile("".join([Server_dir,'server_data.csv']))):
+                server_data = pd.read_csv("".join([Server_dir,'server_data.csv']))
+
+                if (int(server_data['epoch'])) == iteration_num + epoch:
+                    break;
+                if (int(server_data['epoch'])) == init_epoch:
+                    iteration_num = int(server_data['iteration_num'])
+                    
+                    #K.clear_session()
+                    local_model.load_weights("".join([Server_dir,'global_model.h5']))
+                    end_epoch = init_epoch + epoch'''
+
+                    # fit local model with client's data
+                    #local_model.fit(clients_batched, epochs=epoch, verbose=1)
+                    if (init_epoch<50):
+                        local_model.compile(optimizer=Adam(lr=1e-3), loss={ # use custom yolo_loss Lambda layer.
+                                            'yolo_loss': lambda y_true, y_pred: y_pred})
+
+                        
+                        local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+                        steps_per_epoch=max(1, num_train//batch_size),
+                        validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
+                        validation_steps=max(1, num_val//batch_size),
+                        epochs=end_epoch,
+                        initial_epoch=init_epoch,
+                        callbacks=[logging, checkpoint])
+                    else:
+                        for i in range(len(local_model.layers)):
+                            local_model.layers[i].trainable = True
+                        local_model.compile(optimizer=Adam(lr=1e-4), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
+                        print('Unfreeze all of the layers.')
+
+                        #batch_size = 32 # note that more GPU memory is required after unfreezing the body
+                        print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+                        local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+                            steps_per_epoch=max(1, num_train//batch_size),
+                            validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
+                            validation_steps=max(1, num_val//batch_size),
+                            epochs= end_epoch,
+                            initial_epoch= init_epoch,
+                            callbacks=[logging,checkpoint])
+
+                        # clear session to free memory after each communication round
+                         
+                    init_epoch += epoch
+                    local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
+                    '''client_data = pd.DataFrame({'name': [client_name], 'epoch': [int(server_data['epoch'])+epoch]})
+                    client_data.to_csv("".join([Client_dir,'client_data.csv']), index=False)
+                    #tf.saved_model.save(local_model, "".join([Client_dir,'local_model/']))
+                    print('Client name: %s sent data for iteration %d to server......' %(client_name, init_epoch))'''
+                    
+            
+
 
 class Data:
 
@@ -72,14 +173,7 @@ class Data:
       self.init_epoch, self.batch_size = 0, 32
       self.annotation_path = annotation_path
       self.val_split = val_split
-      self.anchors_path = 'model_data/tiny_yolo_anchors.txt'
-      self.classes_path = 'model_data/seabird_classes.txt'
-      self.class_names = get_classes(classes_path)
-      num_classes = len(class_names)
-      anchors = get_anchors(anchors_path)
-      self.lr = 0.001 
-      self.iteration_num = 100
-
+      
     
     # get the data from files
     def read_data(annotation_path, val_split):
@@ -116,96 +210,6 @@ class Data:
         if n==0 or batch_size<=0: return None
         return data_generator(annotation_lines, batch_size, input_shape, anchors, num_classes)
 
-
-def main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, clients_batched, epoch, anchors, num_classes, smlp_global):
-    """Client main function to read the global model files, update the weights, and save the local model
-
-    Parameters
-    ----------
-    init_epoch : 0
-    client_name : name of the client, e.g., client_1
-    Server_dir : specific directory that is defined to only save global model
-    Clients_dir : specific directory that is defined to only save local models for each client
-    optimizer : SGD optimizer from keras including learning rate, decay, and momentum
-    loss : loss metric
-    iteration_num : number of iteration
-    clients_batched : training data baches
-    epoch : number of local iteration before sending model to server
-
-    """
-    num_train = clients_batched[0]
-    num_val = clients_batched[1]
-    batch_size = clients_batched[2]
-    input_shape = (416,416)
-    log_dir = 'logs/000/'
-    logging = TensorBoard(log_dir=log_dir)
-    checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
-        monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
-    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-    print('Client name: %s connecting to server......' % (client_name))
-
-    local_model = smlp_global.build(input_shape,anchors,num_classes)
-    while True:
-
-        '''if os.path.isfile("".join([Client_dir,'client_data.csv'])):
-            os.remove("".join([Client_dir,'client_data.csv']))
-        # get server data name and epoch
-
-        if (os.path.isfile("".join([Server_dir,'server_data.csv']))):
-            server_data = pd.read_csv("".join([Server_dir,'server_data.csv']))
-
-            if (int(server_data['epoch'])) == iteration_num + epoch:
-                break;
-            if (int(server_data['epoch'])) == init_epoch:
-                iteration_num = int(server_data['iteration_num'])
-                
-                #K.clear_session()
-                local_model.load_weights("".join([Server_dir,'global_model.h5']))
-                end_epoch = init_epoch + epoch'''
-
-                # fit local model with client's data
-                #local_model.fit(clients_batched, epochs=epoch, verbose=1)
-                if (init_epoch<50):
-                    local_model.compile(optimizer=Adam(lr=1e-3), loss={ # use custom yolo_loss Lambda layer.
-                                        'yolo_loss': lambda y_true, y_pred: y_pred})
-
-                    
-                    local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                    steps_per_epoch=max(1, num_train//batch_size),
-                    validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
-                    validation_steps=max(1, num_val//batch_size),
-                    epochs=end_epoch,
-                    initial_epoch=init_epoch,
-                    callbacks=[logging, checkpoint])
-                else:
-                    for i in range(len(local_model.layers)):
-                        local_model.layers[i].trainable = True
-                    local_model.compile(optimizer=Adam(lr=1e-4), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
-                    print('Unfreeze all of the layers.')
-
-                    #batch_size = 32 # note that more GPU memory is required after unfreezing the body
-                    print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-                    local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                        steps_per_epoch=max(1, num_train//batch_size),
-                        validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
-                        validation_steps=max(1, num_val//batch_size),
-                        epochs= end_epoch,
-                        initial_epoch= init_epoch,
-                        callbacks=[logging,checkpoint])
-
-                    # clear session to free memory after each communication round
-                     
-                init_epoch += epoch
-                local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
-                '''client_data = pd.DataFrame({'name': [client_name], 'epoch': [int(server_data['epoch'])+epoch]})
-                client_data.to_csv("".join([Client_dir,'client_data.csv']), index=False)
-                #tf.saved_model.save(local_model, "".join([Client_dir,'local_model/']))
-                print('Client name: %s sent data for iteration %d to server......' %(client_name, init_epoch))'''
-                
-        #wait time for server to find the client file, aggregate and create server.csv file 
-        #time.sleep(10)
-        
 
 if __name__ == "__main__":
    
