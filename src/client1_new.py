@@ -39,9 +39,9 @@ class Model:
 
       self.input_shape = input_shape
       self.current_model = None
+      self.logger = logging.getLogger('__name__')
 
-   @staticmethod
-   def build_model(anchors, classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
+   def build_model(self, anchors, num_classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
         '''create the training model, for Tiny YOLOv3'''
         K.clear_session() # get a new session
         image_input = Input(shape=(None, None, 3))
@@ -52,7 +52,7 @@ class Model:
             num_anchors//2, num_classes+5)) for l in range(2)]
 
         model_body = tiny_yolo_body(image_input, num_anchors//2, num_classes)
-        print('Create Tiny YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+        self.logger.info('Create Tiny YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
 
         if load_pretrained:
             model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
@@ -76,10 +76,10 @@ class TrainDataReader:
       self.annotation_path = annotation_path
       self.val_split = val_split
       self.batch_size = 32
-      
+      self.logger = logging.getLogger('__name__') 
     
     # get the data from files
-    def read_training_data():
+    def read_training_data(self):
         with open(self.annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
@@ -87,9 +87,11 @@ class TrainDataReader:
         np.random.seed(None)
         num_val = int(len(lines)*self.val_split)
         num_train = len(lines) - num_val
-        return lines[:,num_train], lines[num_train,:]
+        self.logger.debug('num_train and num_val values'+ str(num_train)+str(num_val))
+        print('num_train and num_val values'+ str(num_train),str(num_val))
+        return lines[:num_train], lines[num_train:]
 
-    def data_generator(annotation_lines, input_shape, anchors, num_classes):
+    def data_generator(self,annotation_lines, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
         n = len(annotation_lines)
         i = 0
@@ -108,28 +110,30 @@ class TrainDataReader:
             y_true = preprocess_true_boxes(box_data, input_shape, anchors, num_classes)
             yield [image_data, *y_true], np.zeros(self.batch_size)
 
-    def data_generator_wrapper(annotation_lines, input_shape, anchors, num_classes):
+    def data_generator_wrapper(self, annotation_lines, input_shape, anchors, num_classes):
         n = len(annotation_lines)
-        if n==0 or batch_size<=0: return None
-        return data_generator(annotation_lines, self.batch_size, input_shape, anchors, num_classes)
+        if n==0 or self.batch_size<=0: return None
+        return self.data_generator(annotation_lines,input_shape, anchors, num_classes)
 
 
 class TrainingProcess:
 
-    def __init__(data, model, input_shape = (416,416), learningrate=1e-3):
+    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1):
+
         self.init_epoch = 0
+        self.epoch = epoch
         self._data = data
         self._model = model
         self.anchors_path = 'model_data/tiny_yolo_anchors.txt'
         self.classes_path = 'model_data/seabird_classes.txt'
-        self.class_names = get_classes(classes_path)
-        self.num_classes = len(class_names)
-        self.anchors = get_anchors(anchors_path)
+        self.class_names = get_classes(self.classes_path)
+        self.num_classes = len(self.class_names)
+        self.anchors = get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
         self.logger = logging.getLogger('FedBird')    
       
-    def train():
+    def train(self):
         """Client main function to read the global model files, update the weights, and save the local model
 
         Parameters
@@ -152,14 +156,14 @@ class TrainingProcess:
         monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
         reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
         early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-        self._model.build_model() # model created, self._model.current_model
+        self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
         local_model = self._model.current_model  #check it once again, shallow copy? what datatype is local_model
         end_epoch = self.init_epoch + self.epoch
 
         while True:
             # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
-             if (init_epoch<50):
+            if (self.init_epoch<50):
                  self.logger.info('Freezing the initial layers')
                  local_model.compile(optimizer=Adam(lr=self.lr), loss={ # use custom yolo_loss Lambda layer.
                                      'yolo_loss': lambda y_true, y_pred: y_pred})
@@ -172,19 +176,19 @@ class TrainingProcess:
                  local_model.compile(optimizer=Adam(lr=self.lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
 
             #batch_size = 32 # note that more GPU memory is required after unfreezing the body
-            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-            local_model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                     steps_per_epoch=max(1, len(lines_train)//batch_size),
-                     validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
-                     validation_steps=max(1, len(lines_val)//batch_size),
+            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(len(lines_train), len(lines_val), self._data.batch_size))
+            local_model.fit_generator(self._data.data_generator_wrapper(lines_train, self.input_shape, self.anchors, self.num_classes),
+                     steps_per_epoch=max(1, len(lines_train)//self._data.batch_size),
+                     validation_data=data_generator_wrapper(lines_val,  self.input_shape, self.anchors, self.num_classes),
+                     validation_steps=max(1, len(lines_val)//self._data.batch_size),
                      epochs= end_epoch,
                      initial_epoch= self.init_epoch,
                      callbacks=[logging,checkpoint])
 
                  # clear session to free memory after each communication round
                   
-             self.init_epoch += self.epoch
-             local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
+            self.init_epoch += self.epoch
+            local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
            
        
 
