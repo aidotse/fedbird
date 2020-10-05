@@ -179,7 +179,7 @@ class TrainingProcess:
             self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(len(lines_train), len(lines_val), self._data.batch_size))
             local_model.fit_generator(self._data.data_generator_wrapper(lines_train, self.input_shape, self.anchors, self.num_classes),
                      steps_per_epoch=max(1, len(lines_train)//self._data.batch_size),
-                     validation_data=data_generator_wrapper(lines_val,  self.input_shape, self.anchors, self.num_classes),
+                     validation_data=self._data.data_generator_wrapper(lines_val,  self.input_shape, self.anchors, self.num_classes),
                      validation_steps=max(1, len(lines_val)//self._data.batch_size),
                      epochs= end_epoch,
                      initial_epoch= self.init_epoch,
@@ -188,7 +188,9 @@ class TrainingProcess:
                  # clear session to free memory after each communication round
                   
             self.init_epoch += self.epoch
-            local_model.save_weights("".join([Client_dir,'local_model.h5']), overwrite=True)
+            local_model.save_weights('local_model.h5', overwrite=True)
+            if self.init_epoch == end_epoch:
+                break
            
        
 
