@@ -133,15 +133,14 @@ class TrainingProcess:
         self.lr = learningrate
         self.lines_train, self.lines_val = self._data.read_training_data()
         self.log_dir = 'logs/000/'
-        self.logging = TensorBoard(log_dir=log_dir)
-        self.checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
+        self.logging = TensorBoard(log_dir=self.log_dir)
+        self.checkpoint = ModelCheckpoint(self.log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
                                     monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
         self.reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
         self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
         self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
         self.logger = logging.getLogger('FedBird')    
-        self.end_epoch = self.init_epoch + self.epoch
-        #self.local_model = self._model.current_model#check it once again, shallow copy? what datatype is local_model
+        self.local_model = self._model.current_model #check it once again, shallow copy? Or pointing to the pretrained weights?
       
     def train(self, global_model):
         """Client main function to read the global model files, update the weights, and save the local model
@@ -160,25 +159,27 @@ class TrainingProcess:
 
         """
         #update it with the global model?
-        local_model = global_model.clone_model()
+        end_epoch = self.init_epoch + self.epoch
+        #local_model = keras.models.clone_model(global_model)
+        self.local_model.load_weights(global_model) # have to fix what is this global_model
         while True:
             # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
             if (self.init_epoch<50):
                  self.logger.info('Freezing the initial layers')
-                 local_model.compile(optimizer=Adam(lr=self.lr), loss={ # use custom yolo_loss Lambda layer.
+                 self.local_model.compile(optimizer=Adam(lr=self.lr), loss={ # use custom yolo_loss Lambda layer.
                                      'yolo_loss': lambda y_true, y_pred: y_pred})
 
                  
             else:
                  self.logger.info('Unfreezing all the layers')
                  for i in range(len(local_model.layers)):
-                     local_model.layers[i].trainable = True
-                 local_model.compile(optimizer=Adam(lr=self.lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
+                     self.local_model.layers[i].trainable = True
+                 self.local_model.compile(optimizer=Adam(lr=self.lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
 
             #batch_size = 32 # note that more GPU memory is required after unfreezing the body
             self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(len(lines_train), len(lines_val), self._data.batch_size))
-            local_model.fit_generator(self._data.data_generator_wrapper(lines_train, self.input_shape, self.anchors, self.num_classes),
+            self.local_model.fit_generator(self._data.data_generator_wrapper(lines_train, self.input_shape, self.anchors, self.num_classes),
                      steps_per_epoch=max(1, len(lines_train)//self._data.batch_size),
                      validation_data=self._data.data_generator_wrapper(lines_val,  self.input_shape, self.anchors, self.num_classes),
                      validation_steps=max(1, len(lines_val)//self._data.batch_size),
@@ -189,18 +190,19 @@ class TrainingProcess:
                  # clear session to free memory after each communication round
                   
             self.init_epoch += self.epoch
-            local_model.save_weights('local_model.h5', overwrite=True)
+            self.local_model.save_weights('local_model.h5', overwrite=True)
             if self.init_epoch == end_epoch:
                 self.logger.info('Local Training Completed')
-                return local_model
+                return self.local_model
 
     
 
 
 if __name__ == "__main__":
-   
-    start_process = TrainingProcess(TrainDataReader(),Model())
-    model = start_process.train()
+    
+    m_instance=Model()
+    start_process = TrainingProcess(TrainDataReader(),m_instance)
+    model = start_process.train(m_instance.current_model)
     # number of local iteration before sending model to server
     '''    
     x_client, y_client = read_files('/data/client_1X.pkl', '/data/client_1Y.pkl')
