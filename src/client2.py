@@ -29,6 +29,12 @@ from misc import get_classes, get_anchors
 from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
 from yolo3.utils import get_random_data
 
+
+config = tf.ConfigProto() 
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config) 
+K.set_session(sess)
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 class YOLOV3:
@@ -192,7 +198,7 @@ def main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, 
                 print('Client name: %s sent data for iteration %d to server......' %(client_name, init_epoch))
                 
         #wait time for server to find the client file, aggregate and create server.csv file 
-        time.sleep(5)
+        time.sleep(10)
         
 
 if __name__ == "__main__":

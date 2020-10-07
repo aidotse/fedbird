@@ -192,7 +192,7 @@ def main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, 
                 print('Client name: %s sent data for iteration %d to server......' %(client_name, init_epoch))
                 
         #wait time for server to find the client file, aggregate and create server.csv file 
-        time.sleep(5)
+        time.sleep(10)
         
 
 if __name__ == "__main__":
