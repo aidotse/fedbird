@@ -1,6 +1,6 @@
 __author__ = 'sheetal.reddy@ai.se'
 
-"""Federated Learning Implementation v.0.1 - 2020-07-07 
+"""Federated Learning Implementation v.0.1 - 2020-10-06 
 
 This module provides classes and methods for FL clients.
 """
@@ -145,17 +145,8 @@ class TrainingProcess:
     def train(self, global_model):
         """Client main function to read the global model files, update the weights, and save the local model
 
-        Parameters§
+        Parameters
         ----------
-        init_epoch : 0
-        client_name : name of the client, e.g., client_1
-        Server_dir : specific directory that is defined to only save global model
-        Clients_dir : specific directory that is defined to only save local models for each client
-        optimizer : SGD optimizer from keras including learning rate, decay, and momentum
-        loss : loss metric
-        iteration_num : number of iteration
-        clients_batched : training data baches
-        epoch : number of local iteration before sending model to server
 
         """
         #update it with the global model?
@@ -169,57 +160,37 @@ class TrainingProcess:
                  self.logger.info('Freezing the initial layers')
                  self.local_model.compile(optimizer=Adam(lr=self.lr), loss={ # use custom yolo_loss Lambda layer.
                                      'yolo_loss': lambda y_true, y_pred: y_pred})
-
-                 
             else:
                  self.logger.info('Unfreezing all the layers')
                  for i in range(len(local_model.layers)):
                      self.local_model.layers[i].trainable = True
-                 self.local_model.compile(optimizer=Adam(lr=self.lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
+                 self.local_model.compile(optimizer=Adam(lr=self.lr), 
+                         loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
 
             #batch_size = 32 # note that more GPU memory is required after unfreezing the body
-            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'.format(len(lines_train), len(lines_val), self._data.batch_size))
-            self.local_model.fit_generator(self._data.data_generator_wrapper(lines_train, self.input_shape, self.anchors, self.num_classes),
+            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'
+                    .format(len(lines_train), len(lines_val), self._data.batch_size))
+            self.local_model.fit_generator(self._data.data_generator_wrapper(lines_train,
+                         self.input_shape, self.anchors, self.num_classes),
                      steps_per_epoch=max(1, len(lines_train)//self._data.batch_size),
-                     validation_data=self._data.data_generator_wrapper(lines_val,  self.input_shape, self.anchors, self.num_classes),
+                     validation_data=self._data.data_generator_wrapper(lines_val, 
+                         self.input_shape, self.anchors, self.num_classes),
                      validation_steps=max(1, len(lines_val)//self._data.batch_size),
                      epochs= end_epoch,
                      initial_epoch= self.init_epoch,
                      callbacks=[self.logging,self.checkpoint])
-
                  # clear session to free memory after each communication round
-                  
             self.init_epoch += self.epoch
             self.local_model.save_weights('local_model.h5', overwrite=True)
             if self.init_epoch == end_epoch:
                 self.logger.info('Local Training Completed')
                 return self.local_model
 
-    
-
 
 if __name__ == "__main__":
     
     m_instance=Model()
     start_process = TrainingProcess(TrainDataReader(),m_instance)
-    model = start_process.train(m_instance.current_model)
-    # number of local iteration before sending model to server
-    '''    
-    x_client, y_client = read_files('/data/client_1X.pkl', '/data/client_1Y.pkl')
+    model = start_process.train()
     
-    # split data into training and test set
-    X_train, X_test, y_train, y_test = train_test_split(x_client, y_client, test_size=0.1, random_state=42)
-    
-    # create clients: a dictionary with keys clients' names and value as data shards - tuple of images and label lists. 
-    client = {client_name : list(zip(X_train, y_train))} 
-    
-    
-    # process and batch the training data for the client
-    clients_batched = tf.data.Dataset.from_tensor_slices((X_train, y_train)).batch(batch_size)
-    
-    # process and batch the test set  
-    test_batched = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(len(y_test))
-    '''                          
-    #main(init_epoch, client_name, Server_dir, Client_dir, lines, iteration_num, (num_train,num_val,batch_size), epoch, anchors, num_classes, smlp_local)
-    
-    
+   
