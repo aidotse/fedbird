@@ -28,7 +28,7 @@ services:
     volumes:
       - ./${COMPONENT_PATH}/src:/app/combiner/src
       - ./${CONFIG}:/app/combiner/project.yaml
-      - ./${CERTIFICATE}:/app/combiner/src/certs/client-cert.pem
+      - ./${CERTIFICATE}:/app/combiner/src/certs/reducer-cert.pem
     device_requests:
       - capabilities:
           - "gpu"
