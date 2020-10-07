@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/tensorflow:20.08-tf2-py3 AS nvidia-base
+FROM nvcr.io/nvidia/tensorflow:20.08-tf1-py3 AS nvidia-base
 
 WORKDIR /app
 
