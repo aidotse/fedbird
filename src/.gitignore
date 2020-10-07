@@ -1,3 +1,6 @@
-logs 
+yolo3/__pycache__/
+.ipynb_checkpoints/
+__pycache__/
+logs/
 model_data/yolov3-tiny.conv.11
-.ipynb_checkpoints
+
