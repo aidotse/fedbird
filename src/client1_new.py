@@ -26,9 +26,8 @@ from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, Ear
 from keras.layers import Input, Lambda
 from keras.optimizers import Adam
 from keras import backend as K
-from misc import get_classes, get_anchors
-from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
-from yolo3.utils import get_random_data
+from src.yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
+from src.yolo3.utils import get_random_data
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
@@ -67,7 +66,8 @@ class Model:
             arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.7})(
             [*model_body.output, *y_true])
         self.current_model = keras.models.Model([model_body.input, *y_true], model_loss)
-        self.current_model.save('test_model')
+        #self.current_model.save('test_model')
+        return self.current_model
 
 
 class TrainDataReader:
@@ -115,21 +115,22 @@ class TrainDataReader:
         n = len(annotation_lines)
         if n==0 or self.batch_size<=0: return None
         return self.data_generator(annotation_lines,input_shape, anchors, num_classes)
+   
 
 
 class TrainingProcess:
 
-    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1):
+    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, anchors_path= 'model_data/tiny_yolo_anchors.txt', classes_path='model_data/seabird_classes.txt'):
 
         self.init_epoch = 0
         self.epoch = epoch
         self._data = data
         self._model = model
-        self.anchors_path = 'model_data/tiny_yolo_anchors.txt'
-        self.classes_path = 'model_data/seabird_classes.txt'
-        self.class_names = get_classes(self.classes_path)
+        self.anchors_path = anchors_path
+        self.classes_path = classes_path
+        self.class_names = self.get_classes(self.classes_path)
         self.num_classes = len(self.class_names)
-        self.anchors = get_anchors(self.anchors_path)
+        self.anchors = self.get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
         self.lines_train, self.lines_val = self._data.read_training_data()
@@ -139,9 +140,8 @@ class TrainingProcess:
                                     monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
         self.reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
         self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-        self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
+        self.local_model = self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
         self.logger = logging.getLogger('FedBird')    
-        self.local_model = self._model.current_model #check it once again, shallow copy? Or pointing to the pretrained weights?
       
     def train(self, global_model):
         """Client main function to read the global model files, update the weights, and save the local model
@@ -187,6 +187,19 @@ class TrainingProcess:
                 self.logger.info('Local Training Completed')
                 return self.local_model
 
+    def get_classes(self, classes_path):
+        '''loads the classes'''
+        with open(classes_path) as f:
+            class_names = f.readlines()
+        class_names = [c.strip() for c in class_names]
+        return class_names
+
+    def get_anchors(self, anchors_path):
+        '''loads the anchors from a file'''
+        with open(anchors_path) as f:
+            anchors = f.readline()
+        anchors = [float(x) for x in anchors.split(',')]
+        return np.array(anchors).reshape(-1, 2)
 
 if __name__ == "__main__":
     

@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append('/media/sheetal/project_space/FL/code/fedbird/')
+sys.path.append('/src/')
 
 import keras
 from keras.layers import Conv2D, MaxPooling2D
@@ -9,16 +9,18 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.models import Sequential
 import tempfile
 
-from src.client1_new import Model
+from src.client1_new import Model, TrainingProcess, TrainDataReader
 
 if __name__ == '__main__':
 
 	# Create a seed model and push to Minio
-	m_instance = Model()
-        model = m_instance.build_model()
+        m_instance = Model()
+        data_instance = TrainDataReader()
+        start_process = TrainingProcess(data_instance, m_instance,  anchors_path='/src/src/model_data/tiny_yolo_anchors.txt', classes_path='/src/src/model_data/seabird_classes.txt')
         outfile_name = "test_model_fedbird"
-#	fod, outfile_name = tempfile.mkstemp(suffix='.h5') 
-	model.save(outfile_name)
+        start_process.local_model.save(outfile_name)
+        print('Seed model for Fedbird saved')
+#       fod, outfile_name = tempfile.mkstemp(suffix='.h5') 
 
 	#project = Project()
 	#from scaleout.repository.helpers import get_repository
