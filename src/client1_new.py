@@ -67,6 +67,7 @@ class Model:
             arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.7})(
             [*model_body.output, *y_true])
         self.current_model = keras.models.Model([model_body.input, *y_true], model_loss)
+        self.current_model.save('test_model')
 
 
 class TrainDataReader:
@@ -191,6 +192,7 @@ if __name__ == "__main__":
     
     m_instance=Model()
     start_process = TrainingProcess(TrainDataReader(),m_instance)
-    model = start_process.train()
+    model = keras.models.load_model("test_model")
+    final_model = start_process.train(model)
     
    
