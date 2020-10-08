@@ -1,5 +1,5 @@
 #FROM debian:bullseye-slim AS platform-base
-FROM nvcr.io/nvidia/tensorflow:20.08-tf1-py3 AS platform-base
+FROM nvcr.io/nvidia/tensorflow:20.08-tf2-py3 AS platform-base
 
 #RUN apt-get update && \
 #    apt-get install -y locales && \

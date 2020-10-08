@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  fedbird:
+  fedbird_1:
     environment:
       - CLIENT_NAME=${CLIENT_NAME}
     image: "fedbird/client_nvidia:exp"
@@ -12,9 +12,35 @@ services:
       context: ${COMPONENT_PATH}
       dockerfile: ${PLATFORM}_platform.dockerfile
     working_dir: /app/client
+    command: /bin/bash -c "fedn run client -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -n ${CLIENT_NAME}_1  -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}" 
+    volumes:
+      - ./${COMPONENT_PATH}/src:/app/client
+      - ./${DATA_PATH}:/app/data
+      - ./${CONFIG}:/app/client/project.yaml
+      - ./${CERTIFICATE}:/app/client/certs/client-cert.pem
+    device_requests:
+      - capabilities:
+          - "gpu"
+    shm_size: '1g'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    stdin_open: true
+    tty: true
+
+  fedbird_2:
+    environment:
+      - CLIENT_NAME=${CLIENT_NAME}_2
+    image: "fedbird/client_nvidia:exp"
+    env_file:
+      - ./project.env
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: ${PLATFORM}_platform.dockerfile
+    working_dir: /app/client
     command: /bin/bash -c "fedn run client -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -n ${CLIENT_NAME}  -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}" 
     volumes:
-      - ./${COMPONENT_PATH}/src:/app/client/src
+      - ./${COMPONENT_PATH}/src:/app/client
       - ./${DATA_PATH}:/app/data
       - ./${CONFIG}:/app/client/project.yaml
       - ./${CERTIFICATE}:/app/client/certs/client-cert.pem
