@@ -10,7 +10,7 @@ RUN python3 -c 'import tensorflow as tf; print(tf.__version__)' && \
 
 FROM python-modules AS scaleout-fedn
 
-RUN git clone https://github.com/scaleoutsystems/fedn.git && \
+RUN git clone -b v0.0.2 https://github.com/scaleoutsystems/fedn.git && \
     pip install --use-feature=2020-resolver -e fedn/fedn
 
 FROM scaleout-fedn AS fed-bird-combiner
