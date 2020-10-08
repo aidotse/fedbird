@@ -1,5 +1,5 @@
 #FROM debian:bullseye-slim AS platform-base
-FROM nvcr.io/nvidia/tensorflow:20.08-tf2-py3 AS platform-base
+FROM nvcr.io/nvidia/tensorflow:20.08-tf1-py3 AS platform-base
 
 #RUN apt-get update && \
 #    apt-get install -y locales && \
@@ -29,7 +29,7 @@ FROM fedn-user AS scaleout-fedn
 
 WORKDIR /app/reducer
 
-RUN git clone -b v0.0.2 https://github.com/scaleoutsystems/fedn.git && \
+RUN git clone https://github.com/scaleoutsystems/fedn.git && \
     pip install --use-feature=2020-resolver -e fedn/fedn
 
 FROM scaleout-fedn AS fedn-bird-reducer
