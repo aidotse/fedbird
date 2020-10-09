@@ -40,7 +40,7 @@ class Model:
       self.current_model = None
       self.logger = logging.getLogger('__name__')
 
-   def build_model(self, anchors, num_classes, load_pretrained=False, freeze_body=2, weights_path='model_data/yolov3-tiny.h5'):
+   def build_model(self, anchors, num_classes, load_pretrained=False, freeze_body=2, weights_path='src/model_data/yolov3-tiny.h5'):
         '''create the training model, for Tiny YOLOv3'''
         K.clear_session() # get a new session
         image_input = Input(shape=(None, None, 3))
@@ -75,7 +75,6 @@ class TrainDataReader:
     # parameters initializiation
     def __init__(self):
       #self.annotation_path = annotation_path
-      self.val_split = val_split
       self.batch_size = 32
       self.logger = logging.getLogger('__name__') 
     
@@ -86,7 +85,7 @@ class TrainDataReader:
         np.random.seed(10101)
         np.random.shuffle(lines)
         np.random.seed(None)
-        num_val = int(len(lines)*self.val_split)
+        num_val = int(len(lines)*val_split)
         num_train = len(lines) - num_val
         self.logger.debug('num_train and num_val values'+ str(num_train)+str(num_val))
         print('num_train and num_val values'+ str(num_train),str(num_val))
@@ -116,14 +115,14 @@ class TrainDataReader:
         if n==0 or self.batch_size<=0: return None
         return self.data_generator(annotation_lines,input_shape, anchors, num_classes)
    
-    def get_classes(self, classes_path ='model_data/tiny_yolo_anchors.txt'):
+    def get_classes(self, classes_path ='src/model_data/seabird_classes.txt'):
         '''loads the classes'''
         with open(classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
         return class_names
 
-    def get_anchors(self, anchors_path='model_data/seabird_classes.txt'):
+    def get_anchors(self, anchors_path='src/model_data/tiny_yolo_anchors.txt'):
         '''loads the anchors from a file'''
         with open(anchors_path) as f:
             anchors = f.readline()
@@ -134,17 +133,17 @@ class TrainDataReader:
 
 class TrainingProcess:
 
-    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, anchors_path='model_data/seabird_classes.txt', classes_path = 'model_data/tiny_yolo_anchors.txt'):
+    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, classes_path='src/model_data/seabird_classes.txt', anchors_path = 'src/model_data/tiny_yolo_anchors.txt'):
 
         self.init_epoch = 0
         self.epoch = epoch
         self._data = data
         self._model = model
-        #self.anchors_path = anchors_path
-        #self.classes_path = classes_path
-        #self.class_names = self.get_classes(self.classes_path)
-        #self.num_classes = len(self.class_names)
-        #self.anchors = self.get_anchors(self.anchors_path)
+        self.anchors_path = anchors_path
+        self.classes_path = classes_path
+        self.class_names = _data.get_classes(self.classes_path)
+        self.num_classes = len(self.class_names)
+        self.anchors = _data.get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
         self.lines_train, self.lines_val = self._data.read_training_data()
