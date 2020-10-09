@@ -73,15 +73,15 @@ class Model:
 class TrainDataReader:
     
     # parameters initializiation
-    def __init__(self, annotation_path= '/data/Annotation/list1.txt',val_split=0.1):
-      self.annotation_path = annotation_path
+    def __init__(self):
+      #self.annotation_path = annotation_path
       self.val_split = val_split
       self.batch_size = 32
       self.logger = logging.getLogger('__name__') 
     
     # get the data from files
-    def read_training_data(self):
-        with open(self.annotation_path) as f:
+    def read_training_data(self, annotation_path= '/data/Annotation/list1.txt',val_split = 0.1):
+        with open(annotation_path) as f:
             lines = f.readlines()
         np.random.seed(10101)
         np.random.shuffle(lines)
@@ -201,6 +201,7 @@ class TrainingProcess:
         anchors = [float(x) for x in anchors.split(',')]
         return np.array(anchors).reshape(-1, 2)
 
+  
 if __name__ == "__main__":
     
     m_instance=Model()
