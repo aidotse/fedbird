@@ -116,21 +116,35 @@ class TrainDataReader:
         if n==0 or self.batch_size<=0: return None
         return self.data_generator(annotation_lines,input_shape, anchors, num_classes)
    
+    def get_classes(self, classes_path ='model_data/tiny_yolo_anchors.txt'):
+        '''loads the classes'''
+        with open(classes_path) as f:
+            class_names = f.readlines()
+        class_names = [c.strip() for c in class_names]
+        return class_names
+
+    def get_anchors(self, anchors_path='model_data/seabird_classes.txt'):
+        '''loads the anchors from a file'''
+        with open(anchors_path) as f:
+            anchors = f.readline()
+        anchors = [float(x) for x in anchors.split(',')]
+        return np.array(anchors).reshape(-1, 2)
+
 
 
 class TrainingProcess:
 
-    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, anchors_path= 'model_data/tiny_yolo_anchors.txt', classes_path='model_data/seabird_classes.txt'):
+    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, anchors_path='model_data/seabird_classes.txt', classes_path = 'model_data/tiny_yolo_anchors.txt'):
 
         self.init_epoch = 0
         self.epoch = epoch
         self._data = data
         self._model = model
-        self.anchors_path = anchors_path
-        self.classes_path = classes_path
-        self.class_names = self.get_classes(self.classes_path)
-        self.num_classes = len(self.class_names)
-        self.anchors = self.get_anchors(self.anchors_path)
+        #self.anchors_path = anchors_path
+        #self.classes_path = classes_path
+        #self.class_names = self.get_classes(self.classes_path)
+        #self.num_classes = len(self.class_names)
+        #self.anchors = self.get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
         self.lines_train, self.lines_val = self._data.read_training_data()
@@ -187,21 +201,7 @@ class TrainingProcess:
                 self.logger.info('Local Training Completed')
                 return self.local_model
 
-    def get_classes(self, classes_path):
-        '''loads the classes'''
-        with open(classes_path) as f:
-            class_names = f.readlines()
-        class_names = [c.strip() for c in class_names]
-        return class_names
-
-    def get_anchors(self, anchors_path):
-        '''loads the anchors from a file'''
-        with open(anchors_path) as f:
-            anchors = f.readline()
-        anchors = [float(x) for x in anchors.split(',')]
-        return np.array(anchors).reshape(-1, 2)
-
-  
+      
 if __name__ == "__main__":
     
     m_instance=Model()
