@@ -26,8 +26,8 @@ from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, Ear
 from keras.layers import Input, Lambda
 from keras.optimizers import Adam
 from keras import backend as K
-from src.yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
-from src.yolo3.utils import get_random_data
+from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes
+from yolo3.utils import get_random_data
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
