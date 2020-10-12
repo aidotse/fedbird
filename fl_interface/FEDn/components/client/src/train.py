@@ -2,7 +2,6 @@ import logging
 import sys
 #sys.path.append('/media/sheetal/project_space/FL/code/fedbird')
 
-
 from client1_new import TrainingProcess, Model, TrainDataReader
 
 
