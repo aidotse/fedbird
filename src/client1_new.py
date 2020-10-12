@@ -7,7 +7,7 @@ This module provides classes and methods for FL clients.
 
 import numpy as np
 import random
-import cv2
+#import cv2
 import os
 import pandas as pd
 import time
@@ -34,11 +34,12 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 class Model:
 
-   def __init__(self,input_shape=(416,416)):
+   def __init__(self,input_shape=(416,416), model_path = None ):
 
       self.input_shape = input_shape
       self.current_model = None
       self.logger = logging.getLogger('__name__')
+
 
    def build_model(self, anchors, num_classes, load_pretrained=False, freeze_body=2, weights_path='src/model_data/yolov3-tiny.h5'):
         '''create the training model, for Tiny YOLOv3'''
@@ -133,7 +134,7 @@ class TrainDataReader:
 
 class TrainingProcess:
 
-    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, classes_path='src/model_data/seabird_classes.txt', anchors_path = 'src/model_data/tiny_yolo_anchors.txt'):
+    def __init__(self, data, model, input_shape = (416,416), learningrate=1e-3, epoch=1, classes_path='src/model_data/seabird_classes.txt', anchors_path = 'src/model_data/tiny_yolo_anchors.txt', data_path ='/data/Annotation/list1.txt' ):
 
         self.init_epoch = 0
         self.epoch = epoch
@@ -141,20 +142,21 @@ class TrainingProcess:
         self._model = model
         self.anchors_path = anchors_path
         self.classes_path = classes_path
-        self.class_names = _data.get_classes(self.classes_path)
+        self.class_names = self._data.get_classes(self.classes_path)
         self.num_classes = len(self.class_names)
-        self.anchors = _data.get_anchors(self.anchors_path)
+        self.anchors = self._data.get_anchors(self.anchors_path)
         self.input_shape = input_shape
         self.lr = learningrate
-        self.lines_train, self.lines_val = self._data.read_training_data()
+        self.lines_train, self.lines_val = self._data.read_training_data(data_path)
         self.log_dir = 'logs/000/'
         self.logging = TensorBoard(log_dir=self.log_dir)
         self.checkpoint = ModelCheckpoint(self.log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
                                     monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
         self.reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
         self.early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-        self.local_model = self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
-        self.logger = logging.getLogger('FedBird')    
+        #self.local_model = self._model.build_model(self.anchors, self.num_classes) # model created, self._model.current_model
+        self.logger = logging.getLogger('FedBird')
+        self.local_model = None
       
     def train(self, global_model):
         """Client main function to read the global model files, update the weights, and save the local model
@@ -166,7 +168,7 @@ class TrainingProcess:
         #update it with the global model?
         end_epoch = self.init_epoch + self.epoch
         #local_model = keras.models.clone_model(global_model)
-        self.local_model.load_weights(global_model) # have to fix what is this global_model
+        self.local_model.load_model(global_model) # have to fix what is this global_model
         while True:
             # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
