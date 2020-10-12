@@ -18,6 +18,8 @@ from keras.optimizers import Adam
 from keras import backend as K
 from misc import get_classes, get_anchors
 from yolo3.model import tiny_yolo_body, yolo_loss
+
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 # A Simple multilayer perceptron neural network model (MLP)
