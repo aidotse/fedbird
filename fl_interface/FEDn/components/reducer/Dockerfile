@@ -29,7 +29,7 @@ FROM fedn-user AS scaleout-fedn
 
 WORKDIR /app/reducer
 
-RUN git clone -b v0.1.0 https://github.com/scaleoutsystems/fedn.git && \
+RUN git clone -b v0.1.0 https://github.com/aidotse/fedn.git && \
     pip install --use-feature=2020-resolver -e fedn/fedn
 
 FROM scaleout-fedn AS fedn-bird-reducer
