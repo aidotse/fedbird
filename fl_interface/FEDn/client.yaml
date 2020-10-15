@@ -4,7 +4,7 @@ services:
 
   fedbird_1:
     environment:
-      - CLIENT_NAME=${CLIENT_NAME}
+      - CLIENT_NAME=${CLIENT_NAME}_1
     image: "fedbird/client_nvidia:exp"
     env_file:
       - ./project.env
@@ -38,7 +38,7 @@ services:
       context: ${COMPONENT_PATH}
       dockerfile: ${PLATFORM}_platform.dockerfile
     working_dir: /app/client
-    command: /bin/bash -c "fedn run client -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -n ${CLIENT_NAME}  -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}" 
+    command: /bin/bash -c "fedn run client -d ${FEDN_REDUCER_HOST} -p ${FEDN_REDUCER_PORT} -n ${CLIENT_NAME}_2  -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}" 
     volumes:
       - ./${COMPONENT_PATH}/src:/app/client
       - ./${DATA_PATH}:/app/data
