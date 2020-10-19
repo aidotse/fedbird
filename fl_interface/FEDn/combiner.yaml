@@ -17,7 +17,10 @@ services:
       - FEDN_MONGO_PORT=${FEDN_MONGO_PORT}
     env_file:
       - ./project.env
-    image: "fedbird:latest"
+    image: "fedbird/combiner_nvidia:exp"
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: ${PLATFORM}_platform.dockerfile
     working_dir: /app/combiner/src
     command: /bin/bash -c "/app/combiner/src/run.sh" 
     ports:
@@ -36,3 +39,6 @@ services:
     stdin_open: true
     tty: true
 
+#volumes:
+#  # CHANGE THIS IF YOU WANT TO PERSIST DATA ACROSS RUN's
+#  minio-data:

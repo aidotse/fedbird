@@ -34,7 +34,6 @@ and ensure that FEDn SDK and FedBird code are deployed in the container.
 
 Script files allow to start the component on host.
 List of command:
-- bash generate-base-image.sh (will generate by default a docker image fedbird:latest)
 - bash start_data_storage.sh (launch minio, mongodb and mongo-express)
 - bash start_dashboard.sh --component-path components/dashboard/ (launch the FEDn dashboard)
 - bash start_reducer.sh --component-path components/reducer/ (launch the reducer)

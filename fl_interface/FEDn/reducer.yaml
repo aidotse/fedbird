@@ -19,7 +19,10 @@ services:
       - FEDN_MONGO_PORT=${FEDN_MONGO_PORT}
       - FEDN_DASHBOARD_HOST=${FEDN_DASHBOARD_HOST}
       - FEDN_DASHBOARD_PORT=${FEDN_DASHBOARD_PORT}
-    image: "fedbird:latest"
+    image: "fedbird/reducer:exp"
+    build:
+      context: ${COMPONENT_PATH}
+      dockerfile: Dockerfile
     working_dir: /app/reducer/
     command: sh -c "fedn run reducer -n reducer -t ${FEDN_ALLIANCE_ADMIN_AUTH_TOKEN}"
     ports:
