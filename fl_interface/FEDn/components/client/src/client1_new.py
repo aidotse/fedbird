@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : client1_new.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 26.10.2020
+# Last Modified Date: 02.11.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 __author__ = 'sheetal.reddy@ai.se'
 
 """Federated Learning Implementation v.0.1 - 2020-10-06 
@@ -197,7 +204,7 @@ class TrainingProcess:
                      callbacks=[self.logging,self.checkpoint])
                  # clear session to free memory after each communication round
             self.init_epoch += self.epoch
-            self.local_model.save_weights('local_model.h5', overwrite=True)
+            #self.local_model.save_weights('local_model.h5', overwrite=True)
             if self.init_epoch == end_epoch:
                 self.logger.info('Local Training Completed')
                 return self.local_model
