@@ -17,7 +17,8 @@ if __name__ == '__main__':
         m_instance = Model()
         data_instance = TrainDataReader()
         local_model = m_instance.build_model(data_instance.get_anchors(), len(data_instance.get_classes()))
-        outfile_name = "test_model_fedbird"
+        outfile_name = "test_model_fedbird.h5"
+        local_model.save(outfile_name)
         print('Seed model for Fedbird saved')
 #       fod, outfile_name = tempfile.mkstemp(suffix='.h5') 
 
