@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File              : train.py
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 02.11.2020
+# Last Modified Date: 02.11.2020
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 import logging
 import sys
 #sys.path.append('/media/sheetal/project_space/FL/code/fedbird')
@@ -13,7 +20,8 @@ if __name__ == '__main__':
     start_process = TrainingProcess(data,model,classes_path ='/app/client/model_data/seabird_classes.txt', anchors_path = '/app/client/model_data/tiny_yolo_anchors.txt', data_path ='/app/data/Annotation/list1.txt')
     #load global model weights here
     #global_model_weights = load_weights()
-    local_model_weights = start_process.train(sys.argv[1])
+    local_model = start_process.train(sys.argv[1])
+    local_model.save(sys.argv[2])
 
 
 
