@@ -1,1 +1,0 @@
-Temporary directory where to share the certificates.
