@@ -89,8 +89,10 @@ class TrainDataReader:
         num_val = int(len(lines)*val_split)
         num_train = len(lines) - num_val
         self.logger.debug('num_train and num_val values'+ str(num_train)+str(num_val))
-        # print('num_train and num_val values'+ str(num_train),str(num_val))
         return lines[:num_train], lines[num_train:]
+
+    #def get_all_data(self,annotation_lines, input_shape, anchors, num_classes):
+
 
     def data_generator(self,annotation_lines, input_shape, anchors, num_classes):
         '''data generator for fit_generator'''
@@ -104,15 +106,8 @@ class TrainDataReader:
                     np.random.shuffle(annotation_lines)
 
                 annot_path = os.path.join('..',annotation_lines[i][1:])
-                # print("os.path.join('..',annotation_lines[i][1:]): ", annot_path)
-                # print("os.path.isdir(annot_path): ", os.path.isdir(annot_path))
-                # print("os.path.isdir(../data): ", os.path.isdir("../data"))
-                # path = "../data"
-                # for f in os.listdir(path):
-                #     print(f)
-                #     if os.path.isdir(os.path.join(path, f)):
-                #         for ff in os.listdir(os.path.join(path, f)):
-                #             print("   ", ff)
+                #annot_path = os.path.join('../..', annotation_lines[i][1:])
+
                 image, box = get_random_data(annot_path, input_shape, random=True)
                 image_data.append(image)
                 box_data.append(box)
@@ -179,10 +174,8 @@ class TrainingProcess:
         ----------
 
         """
-        #update it with the global model?
         end_epoch = self.init_epoch + self.epoch
-        #local_model = keras.models.clone_model(global_model)
-        #self.local_model.load_model(global_model) # have to fix what is this global_model
+
         while True:
             # fit local model with client's data
              #local_model.fit(clients_batched, epochs=epoch, verbose=1)
@@ -224,26 +217,21 @@ class TrainingProcess:
 
         """
 
-        while True:
-            # fit local model with client's data
-             #local_model.fit(clients_batched, epochs=epoch, verbose=1)
+        self.local_model.compile(optimizer=Adam(lr=self.lr),
+                                 loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
+        self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'
+                .format(len(self.lines_train), len(self.lines_val), self._data.batch_size))
+        train_results = self.local_model.evaluate(
+            self._data.data_generator_wrapper(self.lines_train, self.input_shape, self.anchors, self.num_classes),
+            steps=max(1, len(self.lines_train)//self._data.batch_size))
 
+        val_results = self.local_model.evaluate(
+            self._data.data_generator_wrapper(self.lines_val, self.input_shape, self.anchors, self.num_classes),
+            steps=max(1, len(self.lines_train) // self._data.batch_size))
 
-            self.local_model.compile(optimizer=Adam(lr=self.lr),
-                                     loss={'yolo_loss': lambda y_true, y_pred: y_pred}) # recompile to apply the change
+        results = [train_results, val_results]
 
-            #batch_size = 32 # note that more GPU memory is required after unfreezing the body
-            self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'
-                    .format(len(self.lines_train), len(self.lines_val), self._data.batch_size))
-            train_results = self.local_model.evaluate(self._data.data_generator_wrapper(self.lines_train,
-                         self.input_shape, self.anchors, self.num_classes))
-
-            val_results = self.local_model.evaluate(self._data.data_generator_wrapper(self.lines_val,
-                                                                                        self.input_shape, self.anchors,
-                                                                                        self.num_classes))
-            results = [train_results, val_results]
-
-            return results
+        return results
 
 
       

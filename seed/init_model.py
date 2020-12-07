@@ -29,6 +29,6 @@ def save_model(outer_model, path='package'):
 if __name__ == '__main__':
     outer_model = {}
     outer_model['model'] = create_seed_model()
-    outfile_name = "birdcagenew"
+    outfile_name = "birdcagenewest"
     save_model(outer_model, outfile_name)
     print("seed model saved as: ", outfile_name)
