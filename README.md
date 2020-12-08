@@ -9,5 +9,5 @@ tar -czvf fedbird.tar.gz client
 ~~~~
 python init_model.py
 ~~~~
-
+This creates a seed model located and named "seed/birdcage"
 (If this was in the fedn repo you could follow the instructions from the test examples. Add the model "birdcage" in the reducer ui)
