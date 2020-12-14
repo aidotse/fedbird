@@ -18,7 +18,8 @@ RUN TF_ENABLE_DEPRECATION_WARNINGS=1 python3 -c 'import tensorflow as tf; print(
 
 FROM python-modules AS scaleout-fedn
 
-RUN git clone -b yolo3_package https://github.com/aidotse/fedn.git && \
+#RUN git clone -b yolo3_package https://github.com/aidotse/fedn.git && \
+RUN git clone --branch v0.1.3  https://github.com/scaleoutsystems/fedn.git && \
     pip install --use-feature=2020-resolver -e fedn/fedn
 
 FROM scaleout-fedn AS fedbird
