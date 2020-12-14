@@ -1,3 +1,8 @@
+ File              : README.md
+ Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+ Date              : 14.12.2020
+ Last Modified Date: 14.12.2020
+ Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
 # fedbird
 
 ## Setup 
@@ -38,5 +43,5 @@ List of command:
 - bash start_data_storage.sh (launch minio, mongodb and mongo-express)
 - bash start_dashboard.sh --component-path components/dashboard/ (launch the FEDn dashboard)
 - bash start_reducer.sh --component-path components/reducer/ (launch the reducer)
-- bash start_combiner.sh --platform nvidia --component-path components/combiner/ --config config/combiner.yaml --port 12080 --certificate certificates/reducer-cert.pem (launch a combiner - need to implement the name of the combiner like it is done in client)
+- bash start_combiner.sh --platform nvidia --component-path components/combiner/ --config config/combiner.yaml --port 12080 --certificate certificates/  (launch a combiner - need to implement the name of the combiner like it is done in client)
 - bash start_client.sh --platform nvidia --config config/client.yaml --component-path components/client --client-name bird_nest --certificate certificates/reducer-cert.pem --data-path <add your data path>
