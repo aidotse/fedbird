@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  client:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "fedbird-client:latest"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
+    volumes:
+      - ./data:/app/data
+
