@@ -1,0 +1,5 @@
+version: '3.3'
+services:
+ roaster3:
+  extra_hosts:
+    combiner-aws-stockholm: 13.48.194.127
