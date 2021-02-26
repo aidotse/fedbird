@@ -1,5 +1,5 @@
 network_id: fedn-test-network
 controller:
-    discover_host: reducer
+    discover_host: 13.49.227.140
     discover_port: 8090
     token: token
