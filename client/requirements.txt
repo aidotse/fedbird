@@ -1,6 +1,0 @@
-numpy
-keras
-tensorflow
-sklearn
-pandas
-pillow
