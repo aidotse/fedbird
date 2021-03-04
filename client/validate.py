@@ -9,9 +9,9 @@ if __name__ == '__main__':
 
     logger = logging.getLogger('__name__')
     logger.info("Calling the validate function")
-    from fedn.utils.kerasweights import KerasWeightsHelper
+    from fedn.utils.kerashelper import KerasHelper
 
-    helper = KerasWeightsHelper()
+    helper = KerasHelper()
     weights = helper.load_model(sys.argv[1])
     model = create_seed_model('.')
     model.set_weights(weights)
