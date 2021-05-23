@@ -1,7 +1,0 @@
-numba
-setuptools==41.0.0
-pandas
-scikit-learn
-scipy==1.4.1
-keras==2.1.4
-
