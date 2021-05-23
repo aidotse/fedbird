@@ -2,7 +2,25 @@
 
 ## Introduction 
 
-This classsic example of hand-written text recognition is well suited both as a lightweight test when learning FEDn and developing on FEDn in psedo-distributed mode. A normal high-end laptop or a workstation should be able to sustain at least 5 clients. The example is also useful for general scalability tests in fully distributed mode. 
+Fedbird is a poc developed as  part of the federated learning project funded by Vinnova. The POC involves training an object detection model in a federated learning setting using the baltic seabird dataset. More details about the dataset and experiment setup are given below.
+
+### Dataset
+The dataset consists of 2000 hours of video footage of the guillemots on a ledge on Stora Karlsö in Gotland. Researchers from SLU and AI Sweden have manually annotated 1800 frames taken from these video materials.
+
+### Annotations
+The annotations provide the bounding boxes of the birds present on the ledge classifying them into Adult birds, Chicks and Eggs.
+Quality of the dataset: real-world, challenging, class-imbalanced dataset.
+
+### Experimental setup
+The current dataset consists of images from two camera view points(two different CCTV cameras) pertaining to two different ledges on the Island. Each CCTV camera is allotted one Edge device for processing the data stream coming from it. The Edge device is also responsible for training a local object detection model using the bounding box annotations for some selected images from the data stream. The local models from both the clients are sent to the central server for aggregation.
+
+### Object detection Model 
+
+For this POC we have used YOLOv3−tiny as our baseline model for object detection. The choice was dictated by considering conditions such as  the architecture of the model. <Talk about architecture here > which  supports relatively small available dataset, small number of classes and facilitates fast training speeds on an edge device like Xavier.
+
+### Framework 
+
+We use an open source framework called Fedn to communicate between the clients and the central server. In the Fedn high level model, there are three principal layers such as clients, combiners and reducers. The example is also useful for general scalability tests in fully distributed mode. 
 
 ## Network Topology
 
