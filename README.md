@@ -4,6 +4,7 @@
 
 Fedbird is a poc developed as  part of the federated learning project funded by Vinnova. The POC involves training an object detection model in a federated learning setting using the baltic seabird dataset. More details about the dataset and experiment setup are given below.
 
+
 ### Dataset
 The dataset consists of 2000 hours of video footage of the guillemots on a ledge on Stora Karlsö in Gotland. Researchers from SLU and AI Sweden have manually annotated 1800 frames taken from these video materials.
 
@@ -28,6 +29,9 @@ We use an open source framework called Fedn to communicate between the clients a
 - 3 nodes - reducer , combiner and database
 - Communication - Fedn by Scaleout
 - Tensorflow/keras
+
+
+![Alt text](https://github.com/aidotse/fedbird/blob/master/images/unnamed.png)
  
 ## Setting up a client
 
