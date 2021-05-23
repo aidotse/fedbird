@@ -1,6 +1,16 @@
-# MNIST test project
+# Fedbird
+
+## Introduction 
+
 This classsic example of hand-written text recognition is well suited both as a lightweight test when learning FEDn and developing on FEDn in psedo-distributed mode. A normal high-end laptop or a workstation should be able to sustain at least 5 clients. The example is also useful for general scalability tests in fully distributed mode. 
 
+## Network Topology
+
+- 2 Edge nodes as clients
+- 3 nodes - reducer , combiner and database
+- Communication - Fedn by Scaleout
+- Tensorflow/keras
+ 
 ## Setting up a client
 
 ### Provide local training and test data
@@ -25,9 +35,9 @@ epochs: 1
 To train a model in FEDn you provide the client code (in 'client') as a tarball (you set the name of the package in 'settings-reducer.yaml'). For convenience, we ship a pre-made package. Whenever you make updates to the client code (such as altering any of the settings in the above mentioned file), you need to re-package the code (as a .tar.gz archive) and copy the updated package to 'packages'. From 'test/mnist':
 
 ```bash
-tar -cf mnist.tar client
-gzip mnist.tar
-cp mnist.tar.gz packages/
+tar -cf fedbird.tar client
+gzip fedbird.tar
+cp fedbird.tar.gz packages/
 ```
 
 ## Creating a seed model
