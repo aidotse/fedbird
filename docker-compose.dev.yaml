@@ -1,0 +1,28 @@
+version: '3.3'
+services:
+  farallon3:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "fedbird-farallon3-client:latest"
+    build:
+      context: .
+    working_dir: /app
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
+    volumes:
+      - ./data/client1/:/data/:ro
+
+  roaster3:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "fedbird-roaster3-client:latest"
+    build:
+      context: .
+    working_dir: /app
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
+    volumes:
+      - ./data/client2/:/data/:ro
+
+networks:
+  default:
+    external:
+      name: fedn_default

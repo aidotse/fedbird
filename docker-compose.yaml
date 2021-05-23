@@ -1,0 +1,19 @@
+# File              : docker-compose.yaml
+# Author            : Sheetal Reddy <sheetal.reddy@ai.se>
+# Date              : 08.03.2021
+# Last Modified Date: 08.03.2021
+# Last Modified By  : Sheetal Reddy <sheetal.reddy@ai.se>
+version: '3.3'
+services:
+  client:
+    environment:
+      - GET_HOSTS_FROM=dns
+    image: "fedbird-client:latest"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    command: /bin/bash -c "fedn run client -in fedn-network.yaml"
+    volumes:
+      - ./data:/app/data
+
