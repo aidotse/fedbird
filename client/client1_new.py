@@ -95,7 +95,6 @@ class TrainDataReader:
         # print('num_train and num_val values'+ str(num_train),str(num_val))
         return lines[:num_train], lines[num_train:]
 
-    # def get_all_data(self,annotation_lines, input_shape, anchors, num_classes):
     def get_gt(self, annotation_lines, input_shape, num_classes):
         '''geenrates gt boxes for map calculation'''
         n = len(annotation_lines)
@@ -120,9 +119,6 @@ class TrainDataReader:
                 if i == 0:
                     np.random.shuffle(annotation_lines)
 
-                #annot_path = os.path.join('/app', annotation_lines[i][1:])
-                # annot_path = os.path.join('../..', annotation_lines[i][1:])
-                #print("annotation_lines: ", annotation_lines)
                 image, box = get_random_data(annotation_lines[i], input_shape, random=True)
                 image_data.append(image)
                 box_data.append(box)
@@ -273,7 +269,6 @@ class TrainingProcess:
 
         self.local_model.compile(optimizer=Adam(lr=self.lr),
                                  loss={'yolo_loss': lambda y_true, y_pred: y_pred})
-                                 #metrics=['AUC', 'Precision', 'Recall'])  # recompile to apply the change
         # batch_size = 32 # note that more GPU memory is required after unfreezing the body
         self.logger.info('Train on {} samples, val on {} samples, with batch size {}.'
                          .format(len(self.lines_train), len(self.lines_val), self._data.batch_size))
@@ -300,7 +295,6 @@ class TrainingProcess:
                 K.learning_phase(): 0
             })
 
-            #print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
             # change the format of the output
             for i, c in reversed(list(enumerate(out_classes))):
