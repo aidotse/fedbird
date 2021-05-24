@@ -36,7 +36,14 @@ We use an open source framework called Fedn to communicate between the clients a
 ## Setting up a client
 
 ### Provide local training and test data
-This example assumes that trainig and test data is available as 'test/mnist/data/train.csv' and 'test/mnist/data/test.csv'. Data can be downloaded from e.g. https://www.kaggle.com/oddrationale/mnist-in-csv, but there are several hosted versions available. To make testing flexible, each client subsamples from this dataset upon first invokation of a training request, then cache this subsampled data for use for the remaining lifetime of the client. The subsample size is configured as described in the next section. 
+This code repo assumes that trainig and test data annotations are available at
+ 
+- fedbird/data/clientn/train.txt
+- fedbird/data/clientn/Annotation_images 
+- fedbird/data/clientn/val.txt
+
+
+Get in touch with Ebba(ebba.josefson@ai.se) to get access to the dataset. But simple changes to the code can make it work for any object detection dataset.
 
 ### Configuring the tests
 We have made it possible to configure a couple of settings to vary the conditions for the training. These configurations are expsosed in the file 'settings.yaml': 
