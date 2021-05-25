@@ -45,21 +45,6 @@ This code repo assumes that trainig and test data annotations are available at
 
 Get in touch with Ebba(ebba.josefson@ai.se) to get access to the dataset. But simple changes to the code can make it work for any object detection dataset.
 
-### Configuring the tests
-We have made it possible to configure a couple of settings to vary the conditions for the training. These configurations are expsosed in the file 'settings.yaml': 
-
-```yaml 
-# Number of training samples used by each client
-training_samples: 600
-# Number of test samples used by each client (validation)
-test_samples: 100
-# How much to bias the client data samples towards certain classes (non-IID data partitions)
-bias: 0.7
-# Parameters for local training
-batch_size: 32
-epochs: 1
-```
-
 ### Creating a compute package
 To train a model in FEDn you provide the client code (in 'client') as a tarball (you set the name of the package in 'settings-reducer.yaml'). For convenience, we ship a pre-made package. Whenever you make updates to the client code (such as altering any of the settings in the above mentioned file), you need to re-package the code (as a .tar.gz archive) and copy the updated package to 'packages'. From 'test/mnist':
 
