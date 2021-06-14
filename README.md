@@ -1,6 +1,6 @@
 # Fedbird
 
-Note: This repo consists of only the client code. To setup the  reducer, combiner and mongodb  as shown in the image below, clone this repo https://github.com/scaleoutsystems/fedn/tree/v0.2.3 and follow the instructions in it's readme. 
+Note: This repo consists of only the client code. To setup the  reducer, combiner and mongodb  as shown in the image below, clone [a this repo](https://github.com/scaleoutsystems/fedn/tree/v0.2.3) and follow the instructions in it's readme. 
 
 ## Introduction 
 
