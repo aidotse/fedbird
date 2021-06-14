@@ -1,5 +1,7 @@
 # Fedbird
 
+Note: This repo consists of only the client code. To setup the  reducer, combiner and mongodb  as shown in the image below, clone this repo https://github.com/scaleoutsystems/fedn/tree/v0.2.3 and follow the instructions in it's readme. 
+
 ## Introduction 
 
 Fedbird is a poc developed as  part of the federated learning project funded by Vinnova. The POC involves training an object detection model in a federated learning setting using the baltic seabird dataset. More details about the dataset and experiment setup are given below.
@@ -63,9 +65,15 @@ python init_model.py
 ```
 
 ## Start the client
+
+### If you are testing a psuedo distributed system : 
+
 The easiest way to start clients for quick testing is by using Docker. We provide a docker-compose template for convenience. First, edit 'fedn-network.yaml' to provide information about the reducer endpoint. Then:
 
 ```bash
 sudo docker-compose -f docker-compose.dev.yaml up --scale client=2 
 ```
-> Note that this assumes that a FEDn network is running (see separate deployment instructions). The file 'docker-compose.dev.yaml' is for testing againts a local pseudo-distributed FEDn network. Use 'docker-compose.yaml' if you are connecting against a reducer part of a distributed setup and provide a 'extra_hosts' file.
+> Note that this assumes that a FEDn network is running (see separate deployment instructions). The file 'docker-compose.dev.yaml' is for testing againts a local pseudo-distributed FEDn network. Use 'farralon.yaml' and 'roaster.yaml' if you are connecting against a reducer part of a distributed setup and provide a 'extra_hosts' file.
+
+> Use the .xavier files if you want to test it out on the xaviers in a distributed mode.
+
