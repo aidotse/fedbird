@@ -1,0 +1,20 @@
+FROM nvcr.io/nvidia/l4t-tensorflow:r32.5.0-tf1.15-py3
+
+RUN apt-get update && apt-get install -y python3-pip git  python3-distutils python3-setuptools rustc cargo vim
+
+RUN pip3 install --upgrade pip
+
+RUN pip install -e git://github.com/scaleoutsystems/fedn.git@v0.2.3#egg=fedn\&subdirectory=fedn
+
+RUN pip3 install --upgrade git+https://github.com/bes-dev/mean_average_precision.git
+
+RUN pip3 install pip numpy==1.18.5 h5py==2.10.0 keras==2.1.4 pandas sklearn pillow matplotlib mean_average_precision setuptools-rust
+
+COPY fedn-network.yaml /app/
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+WORKDIR /app
+
+
