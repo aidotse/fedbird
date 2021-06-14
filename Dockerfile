@@ -1,10 +1,6 @@
 #To run on cpu use below
 FROM python:3.6.8
 
-#To run on Xavier use below
-#FROM nvcr.io/nvidia/l4t-tensorflow:r32.5.0-tf1.15-py3
-
-
 RUN pip install -e git://github.com/scaleoutsystems/fedn.git@v0.2.3#egg=fedn\&subdirectory=fedn
 
 # Get latest version of mean_average_precision library for object detection
