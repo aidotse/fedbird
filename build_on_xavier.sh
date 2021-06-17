@@ -1,1 +1,1 @@
-docker-compose  -f farallon3.yaml -f extra-hosts.yaml build --no-cache
+docker-compose  -f farallon3.yaml -f extra-hosts.yaml build
