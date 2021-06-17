@@ -8,11 +8,7 @@ data/Annotation.zip
 data/CL1/
 data/CL2/
 data/CLS/
-src/test_model
-fl_interface/FEDn/certificates/combiner*
-fl_interface/FEDn/certificates/reducer*
-fl_interface/FEDn/certificates/client*
-*~
+data
 ~                                                                                                                                                                                                                                
 ~                                                                                                                                                                                                                                
 ~                                                                                                                                                                                                                                
