@@ -6,6 +6,7 @@ services:
     image: "fedbird-roaster3-client:latest"
     build:
       context: .
+      dockerfile: ./Dockerfile_xavier
     working_dir: /app
     command: /bin/bash -c "fedn run client -in fedn-network.yaml"
     volumes:
@@ -14,5 +15,4 @@ services:
 networks:
   default:
     external:
-      name: fedn_default
-~                              
+      name: fedn_default                              
