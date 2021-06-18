@@ -73,7 +73,8 @@ The easiest way to start clients for quick testing is by using Docker. We provid
 ```bash
 sudo docker-compose -f docker-compose.dev.yaml up --scale client=2 
 ```
-> Note that this assumes that a FEDn network is running (see separate deployment instructions). The file 'docker-compose.dev.yaml' is for testing againts a local pseudo-distributed FEDn network. Use 'farralon.yaml' and 'roaster.yaml' if you are connecting against a reducer part of a distributed setup and provide a 'extra_hosts' file.
+> Note that this assumes that a FEDn network is running (see separate deployment instructions). The file 'docker-compose.dev.yaml' is for testing againts a local pseudo-distributed FEDn network. Use 'farralon.yaml' and 'roaster.yaml' if you are connecting against a reducer part of a distributed setup and provide a 'extra_hosts_farallon3.yaml' or 'extra_hosts_roaster3.yaml' respectively for each of the clients
 
 > Use the .xavier files if you want to test it out on the xaviers in a distributed mode.
+
 
