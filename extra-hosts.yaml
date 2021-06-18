@@ -1,6 +1,0 @@
-version: '3.3'
-services:
- farallon3:
-  extra_hosts:
-    combiner: 172.25.16.6
-
