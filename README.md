@@ -77,4 +77,6 @@ sudo docker-compose -f docker-compose.dev.yaml up --scale client=2
 
 > Use the .xavier files if you want to test it out on the xaviers in a distributed mode.
 
-> Use build_on_xavier to build the client docker images on the xavier. For the roaster3 client, Open the build_on_xavier in a text editor and edit the extra-hosts-farallon3.yaml file to extra-hosts-roaster3.yaml , farallon3.yaml to roaster3.yaml.  
+> Use build_on_xavier to build the client docker images on the xavier. For the roaster3 client, Open the build_on_xavier in a text editor and edit the extra-hosts-farallon3.yaml file to extra-hosts-roaster3.yaml , farallon3.yaml to roaster3.yaml. 
+
+> Change the docker image name to 'fedn-roaster3-clent' in run_on_xavie.sh file while running on the roaster3 client. 
