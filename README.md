@@ -1,6 +1,7 @@
 # Fedbird
 
-Note: This repo consists of only the client code. To setup the  reducer, combiner and mongodb  as shown in the image below, clone [a this repo](https://github.com/scaleoutsystems/fedn/tree/v0.2.3) and follow the instructions in it's readme. 
+Note: This repo consists of only the client code. To setup the  reducer, combiner and mongodb  as shown in the image below, clone this [repo](https://github.com/scaleoutsystems/fedn/tree/v0.2.3) and follow the instructions in it's readme. The code has been tested with V0.2.3 tag of fedn
+ 
 
 ## Introduction 
 
@@ -19,7 +20,7 @@ The current dataset consists of images from two camera view points(two different
 
 ### Object detection Model 
 
-For this POC we have used YOLOv3−tiny as our baseline model for object detection. The choice was dictated by considering conditions such as  the architecture of the model. <Talk about architecture here > which  supports relatively small available dataset, small number of classes and facilitates fast training speeds on an edge device like Xavier.
+For this POC we have used YOLOv3−tiny as our baseline model for object detection. The choice was dictated by considering conditions such as  the architecture of the model. The architecture  supports relatively small available dataset, small number of classes and facilitates fast training speeds on an edge device like Xavier.
 
 ### Framework 
 
