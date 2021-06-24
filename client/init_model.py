@@ -27,7 +27,7 @@ def create_seed_model():
 
 if __name__ == '__main__':
 
-    outfile_name = "/data/birdweights.npz"
+    outfile_name = '/seed/'+ sys.argv[1]
 
     helper = KerasHelper()
     model = create_seed_model()
