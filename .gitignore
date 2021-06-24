@@ -1,8 +1,7 @@
-src/yolo3/__pycache__/
-src/.ipynb_checkpoints/
-src/__pycache__/
-src/logs/
-src/model_data/yolov3-tiny.conv.11
+client/yolo3/__pycache__/
+client/__pycache__/
+client/logs/
+client/model_data/yolov3-tiny.conv.11
 data/Annotation
 data/Annotation.zip
 data/CL1/
