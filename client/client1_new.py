@@ -26,8 +26,6 @@ from keras import backend as K
 from yolo3.model import tiny_yolo_body, yolo_loss, preprocess_true_boxes, yolo_eval
 from yolo3.utils import get_random_data, get_data
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 
 class Model:
@@ -192,7 +190,6 @@ class TrainingProcess:
 
         
         self.logger = logging.getLogger('FedBird')
-        # self.local_model = None
 
     def save_weights(self,path):
         self.local_model.save_weights(path)
@@ -251,8 +248,6 @@ class TrainingProcess:
                                            callbacks=[self.logging, self.checkpoint])
             # clear session to free memory after each communication round
             self.init_epoch += self.epoch
-            #self.save_weights('./model_data/local_model.h5', overwrite=True)
-            self.local_model.save_weights('./model_data/llllocal_model.h5', overwrite=True)
             if self.init_epoch == end_epoch:
                 self.logger.info('Local Training Completed')
                 return self.local_model
