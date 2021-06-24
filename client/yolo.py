@@ -21,9 +21,9 @@ from keras.utils import multi_gpu_model
 
 class YOLO(object):
     _defaults = {
-        "model_path": './model_data/global_model.h5',
-        "anchors_path": 'model_data/tiny_yolo_anchors.txt',
-        "classes_path": 'model_data/seabird_classes.txt',
+        "model_path": '/client/model_data/global_model.h5',
+        "anchors_path": '/client/model_data/tiny_yolo_anchors.txt',
+        "classes_path": '/client/model_data/seabird_classes.txt',
         "score" : 0.3,
         "iou" : 0.45,
         "model_image_size" : (416, 416),

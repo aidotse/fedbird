@@ -20,10 +20,7 @@ def load_model(path="weights.npz"):
 if __name__ == '__main__':
 
     logger = logging.getLogger('__name__')
-    logger.info("Calling the validate function")
-
-    weights = load_model('model_data/global_model')
-    model = create_seed_model('.')
-    model.set_weights(weights)
-    model.save_weights('model_data/global_model.h5')
-
+    weights = load_model(sys.argv[1])
+    start_process = create_seed_model('/client/')
+    start_process.set_weights(weights)
+    start_process.save_weights(sys.argv[2])
