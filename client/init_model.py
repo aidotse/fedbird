@@ -17,6 +17,6 @@ if __name__ == '__main__':
 
     outfile_name = '/seed/'+ sys.argv[1]
     helper = KerasHelper()
-    start_process = create_seed_model('/client/')
+    start_process = create_seed_model('/client/', pretrained=True)
     helper.save_model(start_process.local_model.get_weights(), path=outfile_name)
     print("seed model saved as: ", outfile_name)
