@@ -21,7 +21,7 @@ from keras.utils import multi_gpu_model
 
 class YOLO(object):
     _defaults = {
-        "model_path": '/client/model_data/global_model.h5',
+        'model_path' : '',
         "anchors_path": '/client/model_data/tiny_yolo_anchors.txt',
         "classes_path": '/client/model_data/seabird_classes.txt',
         "score" : 0.3,
@@ -40,6 +40,7 @@ class YOLO(object):
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults) # set up default values
         self.__dict__.update(kwargs) # and update with user overrides
+        print(self.__dict__)
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
@@ -126,7 +127,6 @@ class YOLO(object):
             })
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
-
         font = ImageFont.truetype(font='font/arial.ttf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
@@ -172,6 +172,7 @@ class YOLO(object):
 
 def detect_video(yolo, video_path, output_path=""):
     import cv2
+    print(video_path)
     vid = cv2.VideoCapture(video_path)
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
