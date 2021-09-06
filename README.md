@@ -9,7 +9,7 @@ Fedbird is a poc developed as  part of the federated learning project funded by 
 
 
 ### Dataset
-The dataset consists of 2000 hours of video footage of the guillemots on a ledge on Stora Karlsö in Gotland. Researchers from SLU and AI Sweden have manually annotated 1800 frames taken from these video materials.
+The dataset consists of 2000 hours of video footage of the guillemots on a ledge on Stora Karlsö in Gotland. Researchers from SLU and AI Sweden have manually annotated 1800 frames taken from these video materials. The author of the Seabird Dataset is Jonas Hentati Sundberg, Associate Senior Lecturer at SLU - The Swedish University of Agricultural Sciences (Sveriges Lantbruksuniversitet)
 
 ### Annotations
 The annotations provide the bounding boxes of the birds present on the ledge classifying them into Adult birds, Chicks and Eggs.
